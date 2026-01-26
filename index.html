@@ -14,14 +14,14 @@
             --card-bg: #18191e; 
             --text-color: #c4c4c4; 
             --accent-gold: #cfb53b; 
-            --accent-green: #1a4a25; /* Ejderha yeşili için yan renk */
+            --accent-green: #1a4a25; 
             --accent-dark: #8a7620; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; position: relative; }
         h1, h2, h3 { font-family: 'Cinzel', serif; color: #fff; }
 
-        /* ARKA PLAN EFEKTİ */
+        /* ARKA PLAN */
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 20%, rgba(207, 181, 59, 0.08), transparent 70%); z-index: -1; pointer-events: none; }
 
         /* --- HEADER & LOGO --- */
@@ -37,12 +37,14 @@
 
         /* Logo Stili */
         .crest-logo {
-            width: 180px; /* Logo boyutu */
-            height: auto;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 15px rgba(207, 181, 59, 0.4)); /* Altın parıltı */
-            animation: float 6s ease-in-out infinite; /* Süzülme efekti */
-            border-radius: 50%; /* Keskin köşeleri yumuşatır */
+            width: 200px; /* Logo boyutu */
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border-radius: 50%; /* Yuvarlak Çerçeve */
+            border: 2px solid var(--accent-gold); /* Altın Çerçeve */
+            box-shadow: 0 0 25px rgba(207, 181, 59, 0.3); /* Parlama Efekti */
+            animation: float 6s ease-in-out infinite; 
         }
 
         .logo-text { font-size: 3rem; text-transform: uppercase; color: var(--accent-gold); text-shadow: 0 0 15px rgba(207, 181, 59, 0.3); letter-spacing: 2px; }
@@ -52,36 +54,17 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* --- GİZLİ ADMIN BUTONU (SAĞ ÜST) --- */
+        /* --- GİZLİ ADMIN BUTONU --- */
         .secret-admin-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: rgba(255, 255, 255, 0.05); /* Neredeyse görünmez */
-            font-size: 1.2rem;
-            text-decoration: none;
-            transition: all 0.5s ease;
-            z-index: 999;
-            padding: 10px;
+            position: absolute; top: 20px; right: 20px;
+            color: rgba(255, 255, 255, 0.05); font-size: 1.2rem; text-decoration: none; transition: all 0.5s ease; z-index: 999; padding: 10px;
         }
-
-        .secret-admin-btn:hover {
-            color: var(--accent-gold); /* Üzerine gelince parlar */
-            transform: rotate(45deg) scale(1.2);
-            text-shadow: 0 0 10px var(--accent-gold);
-        }
+        .secret-admin-btn:hover { color: var(--accent-gold); transform: rotate(45deg) scale(1.2); text-shadow: 0 0 10px var(--accent-gold); }
 
         /* --- FORM ALANI --- */
         .container { max-width: 800px; margin: 0 auto; padding: 50px 20px; }
         section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
         
-        /* Kartın arkasına hafif logo silüeti */
-        section::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(207, 181, 59, 0.03), transparent 60%);
-            pointer-events: none;
-        }
-
         .form-group { margin-bottom: 20px; position: relative; z-index: 2; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; }
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 6px; color: #fff; font-family: 'Inter', sans-serif; transition: 0.3s; }
@@ -93,20 +76,18 @@
         /* Responsive */
         @media (max-width: 768px) {
             .logo-text { font-size: 2rem; }
-            .crest-logo { width: 140px; }
+            .crest-logo { width: 150px; height: 150px; }
         }
     </style>
 </head>
 <body>
 
-    <a href="admin.html" class="secret-admin-btn" title="Baron Girişi">
-        <i class="fas fa-key"></i>
-    </a>
+    <a href="admin.html" class="secret-admin-btn" title="Baron Girişi"><i class="fas fa-key"></i></a>
 
     <div class="bg-overlay"></div>
 
     <header>
-        <img src="Visconti.jpg" alt="Visconti Crest" class="crest-logo">
+        <img src="Visconti.jpg" alt="Visconti Hanedan Arması" class="crest-logo">
         
         <div class="logo-text">Visconti Ailesi</div>
         <p style="color: #888; margin-top: 5px; font-size: 0.9rem; letter-spacing: 3px;">"GÜÇ. SADAKAT. ONUR."</p>
@@ -131,7 +112,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
             authDomain: "veltora.firebaseapp.com",
@@ -147,7 +127,6 @@
         const db = getFirestore(app);
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
-        // GÖNDERME İŞLEMİ
         document.getElementById('viscontiForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -160,30 +139,21 @@
             btn.disabled = true;
 
             try {
-                // 1. Firebase Kayıt
                 const firebasePromise = addDoc(collection(db, "basvurular"), {
                     discord: discordId, icName: icName, icAge: icAge, story: story,
                     tarih: serverTimestamp(), durum: "Beklemede"
                 });
 
-                // 2. Discord Webhook
                 const discordPromise = fetch(DISCORD_WEBHOOK_URL, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         username: "Visconti Hanedanı", 
-                        // NOT: Avatar URL'sini de GitHub linkinle değiştirebilirsin
-                        avatar_url: "https://raw.githubusercontent.com/GITHUB_KULLANICI_ADIN/REPO_ADIN/main/Visconti.jpg",
+                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg", // Temsili link
                         embeds: [{
                             title: "⚔️ Yeni Hanedan Başvurusu", 
                             description: `**${icName}** aileye katılmak istiyor.`, 
-                            color: 13612347, // Gold
-                            thumbnail: { url: "https://raw.githubusercontent.com/GITHUB_KULLANICI_ADIN/REPO_ADIN/main/Visconti.jpg" },
-                            fields: [
-                                { name: "Discord", value: discordId, inline: true }, 
-                                { name: "Karakter", value: icName, inline: true }, 
-                                { name: "Yaş", value: icAge, inline: true }, 
-                                { name: "Hikaye", value: story.substring(0, 1000) }
-                            ],
+                            color: 13612347,
+                            fields: [{ name: "Discord", value: discordId, inline: true }, { name: "Karakter", value: icName, inline: true }, { name: "Yaş", value: icAge, inline: true }, { name: "Hikaye", value: story.substring(0, 1000) }],
                             footer: { text: "Visconti Family System" }, timestamp: new Date().toISOString()
                         }]
                     })

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visconti Ailesi | Başvuru</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --accent-dark: #8a7620; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Cinzel', serif; color: #fff; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 10%, rgba(207, 181, 59, 0.05), transparent 60%); z-index: -1; pointer-events: none; }
+        header { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-text { font-size: 3rem; text-transform: uppercase; color: var(--accent-gold); text-shadow: 0 0 15px rgba(207, 181, 59, 0.3); }
+        .container { max-width: 800px; margin: 0 auto; padding: 50px 20px; }
+        section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #fff; }
+        input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 6px; color: #fff; font-family: 'Inter', sans-serif; transition: 0.3s; }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 10px rgba(207, 181, 59, 0.1); }
+        .btn-submit { width: 100%; padding: 18px; background: linear-gradient(45deg, var(--accent-dark), var(--accent-gold)); border: none; color: #000; font-weight: 800; font-family: 'Cinzel', serif; cursor: pointer; border-radius: 6px; transition: 0.4s; font-size: 1.1rem; }
+        .btn-submit:hover { filter: brightness(1.2); }
+    </style>
+</head>
+<body>
+    <div class="bg-overlay"></div>
+    <header>
+        <div class="logo-text">Visconti Ailesi</div>
+        <p style="color: #666; margin-top: 10px;">Veltora RolePlay Başvuru Sistemi</p>
+    </header>
+    <div class="container">
+        <section>
+            <h2 style="margin-bottom: 20px; color: var(--accent-gold);"><i class="fas fa-file-contract"></i> Başvuru Formu</h2>
+            <form id="viscontiForm">
+                <div class="form-group"><label>Discord ID</label><input type="text" id="discord_id" required placeholder="örn: kullanıcı#1234"></div>
+                <div class="form-group"><label>IC İsim Soyisim</label><input type="text" id="ic_name" required placeholder="Karakter Adı"></div>
+                <div class="form-group"><label>Yaş (IC)</label><input type="number" id="ic_age" required placeholder="18+"></div>
+                <div class="form-group"><label>Hikaye & Deneyim</label><textarea id="story" rows="5" required placeholder="Karakter hikayeniz ve RP geçmişiniz..."></textarea></div>
+                <button type="submit" class="btn-submit" id="submitBtn">Başvuruyu Gönder</button>
+            </form>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
+            authDomain: "veltora.firebaseapp.com",
+            databaseURL: "https://veltora-default-rtdb.firebaseio.com",
+            projectId: "veltora",
+            storageBucket: "veltora.firebasestorage.app",
+            messagingSenderId: "62609466462",
+            appId: "1:62609466462:web:5813c33c88df4f212600cf",
+            measurementId: "G-PQBJN0MLXR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
+        document.getElementById('viscontiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const discordId = document.getElementById('discord_id').value;
+            const icName = document.getElementById('ic_name').value;
+            const icAge = document.getElementById('ic_age').value;
+            const story = document.getElementById('story').value;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+            btn.disabled = true;
+
+            try {
+                const firebasePromise = addDoc(collection(db, "basvurular"), {
+                    discord: discordId, icName: icName, icAge: icAge, story: story,
+                    tarih: serverTimestamp(), durum: "Beklemede"
+                });
+
+                const discordPromise = fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: "Visconti Başvuru", avatar_url: "https://i.imgur.com/AfFp7pu.png",
+                        embeds: [{
+                            title: "📜 Yeni Aile Başvurusu", description: `**${icName}** başvuru yaptı.`, color: 13612347,
+                            fields: [{ name: "Discord", value: discordId, inline: true }, { name: "IC İsim", value: icName, inline: true }, { name: "Yaş", value: icAge, inline: true }, { name: "Hikaye", value: story.substring(0, 1000) }],
+                            footer: { text: "Visconti System" }, timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+
+                await Promise.all([firebasePromise, discordPromise]);
+                alert("Başvuru iletildi!");
+                document.getElementById('viscontiForm').reset();
+            } catch (error) {
+                console.error(error);
+                alert("Hata oluştu.");
+            } finally {
+                btn.innerHTML = 'Başvuruyu Gönder';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

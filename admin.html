@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visconti Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --danger: #8a2020; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.4); border-bottom: 1px solid #333; }
+        .admin-title { font-family: 'Cinzel', serif; color: var(--accent-gold); font-size: 1.5rem; }
+        .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1014; z-index: 100; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--accent-gold); text-align: center; width: 90%; max-width: 400px; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; }
+        .btn-login { width: 100%; padding: 12px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; }
+        .dashboard-container { padding: 40px; max-width: 1200px; margin: 0 auto; display: none; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border-left: 3px solid var(--accent-gold); position: relative; transition: transform 0.2s; }
+        .app-card:hover { transform: translateY(-3px); background: #1f2026; }
+        .app-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .discord-tag { color: var(--accent-gold); font-weight: bold; }
+        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 100px; overflow-y: auto; margin-top: 10px; }
+        .btn-delete { position: absolute; bottom: 20px; right: 20px; color: #555; cursor: pointer; transition: 0.3s; }
+        .btn-delete:hover { color: var(--danger); }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 20px;">Baron Girişi</h2>
+            <input type="email" id="adminEmail" class="login-input" placeholder="Email">
+            <input type="password" id="adminPass" class="login-input" placeholder="Şifre">
+            <button class="btn-login" id="loginBtn">Giriş Yap</button>
+            <p id="loginError" style="color: #8a2020; margin-top: 10px; font-size: 0.9rem;"></p>
+        </div>
+    </div>
+
+    <div class="admin-header">
+        <div class="admin-title">Visconti Management</div>
+        <button class="btn-logout" id="logoutBtn">Çıkış</button>
+    </div>
+
+    <div class="dashboard-container" id="dashboard">
+        <div class="grid" id="applicationsGrid"><p style="color: #666;">Yükleniyor...</p></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
+            authDomain: "veltora.firebaseapp.com",
+            databaseURL: "https://veltora-default-rtdb.firebaseio.com",
+            projectId: "veltora",
+            storageBucket: "veltora.firebasestorage.app",
+            messagingSenderId: "62609466462",
+            appId: "1:62609466462:web:5813c33c88df4f212600cf",
+            measurementId: "G-PQBJN0MLXR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const loginScreen = document.getElementById('login-screen');
+        const dashboard = document.getElementById('dashboard');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { loginScreen.style.display = 'none'; dashboard.style.display = 'block'; loadApplications(); }
+            else { loginScreen.style.display = 'flex'; dashboard.style.display = 'none'; }
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
+                .catch((err) => document.getElementById('loginError').innerText = "Hatalı Giriş");
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        async function loadApplications() {
+            const grid = document.getElementById('applicationsGrid');
+            try {
+                const q = query(collection(db, "basvurular"), orderBy("tarih", "desc"));
+                const querySnapshot = await getDocs(q);
+                grid.innerHTML = '';
+                if (querySnapshot.empty) { grid.innerHTML = '<p>Başvuru yok.</p>'; return; }
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'app-card';
+                    div.innerHTML = `
+                        <div class="app-header"><span class="discord-tag">${data.discord}</span></div>
+                        <div style="margin-bottom:5px; color:#fff;">${data.icName} (${data.icAge})</div>
+                        <div class="story-box">${data.story}</div>
+                        <i class="fas fa-trash btn-delete"></i>`;
+                    div.querySelector('.btn-delete').onclick = async () => { if(confirm('Silinsin mi?')) { await deleteDoc(doc(db, "basvurular", docSnap.id)); loadApplications(); }};
+                    grid.appendChild(div);
+                });
+            } catch (err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>

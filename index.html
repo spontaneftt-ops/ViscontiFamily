@@ -288,7 +288,7 @@
             const icName = document.getElementById('ic_name').value;
             const icAge = document.getElementById('ic_age').value;
             
-            // CEVAPLARI TOPLA VE TEK BİR HİKAYE FORMATINA GETİR
+            // CEVAPLARI TOPLA
             let fullStory = "";
             fullStory += `**1. PG & Bunny:** ${document.getElementById('q1').value}\n`;
             fullStory += `**2. Meta & Mixing:** ${document.getElementById('q2').value}\n`;
@@ -305,20 +305,20 @@
             btn.disabled = true;
 
             try {
-                // Firebase'e "story" alanına birleştirilmiş metni atıyoruz
+                // Firebase Kayıt
                 const firebasePromise = addDoc(collection(db, "basvurular"), {
                     discord: discordId, icName: icName, icAge: icAge, story: fullStory,
                     tarih: serverTimestamp(), durum: "Beklemede"
                 });
 
-                // Discord'a gönderim
+                // Discord Webhook (BURASI DÜZELTİLDİ: <@&ID> EKLENDİ)
                 const discordPromise = fetch(DISCORD_WEBHOOK_URL, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         username: "Visconti Hanedanı", 
                         avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
-                        // BURAYA PING MESAJI EKLENDİ
-                        content: `📢 **Yeni Başvuru Bildirimi!**\n<@1464989769762078934> yetkili bekleniyor.\nBaşvuru Sahibi: <@${discordId}>`,
+                        // <@&...> ROL ETİKETLEME FORMATIDIR
+                        content: `📢 **Yeni Başvuru Bildirimi!**\n<@&1464989769762078934> yetkili bekleniyor.\nBaşvuru Sahibi: <@${discordId}>`, // Eğer başvuru sahibini de rol sanıyorsa burayı da düzeltmek gerekebilir ama genelde kişi etiketlenir.
                         embeds: [{
                             title: "⚔️ Detaylı Başvuru Formu", 
                             description: `**${icName}** aileye katılmak istiyor.`, 
@@ -327,7 +327,7 @@
                                 { name: "Discord", value: discordId, inline: true }, 
                                 { name: "Karakter", value: icName, inline: true }, 
                                 { name: "Yaş", value: icAge, inline: true }, 
-                                { name: "Mülakat & Hikaye", value: fullStory.substring(0, 1024) } // Discord limit
+                                { name: "Mülakat & Hikaye", value: fullStory.substring(0, 1024) } 
                             ],
                             footer: { text: "Visconti Family System" }, timestamp: new Date().toISOString()
                         }]

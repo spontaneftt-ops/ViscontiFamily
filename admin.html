@@ -3,49 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visconti Admin</title>
+    <title>Visconti Admin | Baron Paneli</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --danger: #8a2020; }
+        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --danger: #8a2020; --tab-active: #2a2b33; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
+        
+        /* HEADER & TABS */
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.4); border-bottom: 1px solid #333; }
         .admin-title { font-family: 'Cinzel', serif; color: var(--accent-gold); font-size: 1.5rem; }
-        .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+        
+        .tab-menu { display: flex; gap: 10px; }
+        .tab-btn { background: transparent; border: 1px solid #444; color: #888; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: 600; transition: 0.3s; }
+        .tab-btn.active { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
+        .tab-btn:hover:not(.active) { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; margin-left: 20px; }
+        
+        /* LOGIN EKRANI DÜZENLEMELERİ */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1014; z-index: 100; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--accent-gold); text-align: center; width: 90%; max-width: 400px; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; }
-        .btn-login { width: 100%; padding: 12px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; }
-        .dashboard-container { padding: 40px; max-width: 1200px; margin: 0 auto; display: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .login-box { 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 12px; 
+            border: 1px solid var(--accent-gold); 
+            text-align: center; 
+            width: 90%; 
+            max-width: 400px; 
+            box-shadow: 0 0 30px rgba(207, 181, 59, 0.15);
+        }
+        
+        .login-input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; transition: 0.3s; }
+        .login-input:focus { border-color: var(--accent-gold); outline: none; }
+        
+        .btn-login { width: 100%; padding: 15px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; font-family: 'Cinzel', serif; font-size: 1rem; transition: 0.3s; }
+        .btn-login:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(207, 181, 59, 0.4); }
+
+        /* YENİ EKLENEN: BAŞVURU LİNKİ ALANI */
+        .apply-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #333; }
+        .apply-text { font-size: 0.85rem; color: #666; margin-bottom: 10px; }
+        .btn-apply-link { 
+            color: var(--text-color); 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            border: 1px solid #444; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            display: inline-block; 
+            transition: 0.3s;
+        }
+        .btn-apply-link:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        /* GRID SİSTEMİ */
+        .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; display: none; }
+        .section-header { margin-bottom: 20px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
         .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border-left: 3px solid var(--accent-gold); position: relative; transition: transform 0.2s; }
-        .app-card:hover { transform: translateY(-3px); background: #1f2026; }
+        .app-card.staff-card { border-left-color: var(--danger); } 
+        
         .app-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .discord-tag { color: var(--accent-gold); font-weight: bold; }
-        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 100px; overflow-y: auto; margin-top: 10px; }
+        .discord-tag { color: #fff; font-weight: bold; }
+        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 120px; overflow-y: auto; margin-top: 10px; color: #ccc; }
         .btn-delete { position: absolute; bottom: 20px; right: 20px; color: #555; cursor: pointer; transition: 0.3s; }
         .btn-delete:hover { color: var(--danger); }
+        .label { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
+
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 20px;">Baron Girişi</h2>
-            <input type="email" id="adminEmail" class="login-input" placeholder="Email">
+            <h2 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 30px; letter-spacing: 2px;">BARON GİRİŞİ</h2>
+            
+            <input type="email" id="adminEmail" class="login-input" placeholder="Yetkili E-Posta">
             <input type="password" id="adminPass" class="login-input" placeholder="Şifre">
             <button class="btn-login" id="loginBtn">Giriş Yap</button>
             <p id="loginError" style="color: #8a2020; margin-top: 10px; font-size: 0.9rem;"></p>
+
+            <div class="apply-section">
+                <p class="apply-text">Henüz yetkin yok mu?</p>
+                <a href="yetkili.html" class="btn-apply-link">
+                    <i class="fas fa-user-shield"></i> Yönetim Ekibine Başvur
+                </a>
+            </div>
         </div>
     </div>
 
     <div class="admin-header">
         <div class="admin-title">Visconti Management</div>
-        <button class="btn-logout" id="logoutBtn">Çıkış</button>
+        <div style="display: flex; align-items: center;">
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('member')">Aile Üyeleri</button>
+                <button class="tab-btn" onclick="switchTab('staff')">Yönetim Ekibi</button>
+            </div>
+            <button class="btn-logout" id="logoutBtn">Çıkış</button>
+        </div>
     </div>
 
     <div class="dashboard-container" id="dashboard">
-        <div class="grid" id="applicationsGrid"><p style="color: #666;">Yükleniyor...</p></div>
+        <h3 id="currentViewTitle" class="section-header"><i class="fas fa-users"></i> Aile Başvuruları</h3>
+        <div class="grid" id="applicationsGrid"><p>Yükleniyor...</p></div>
     </div>
 
     <script type="module">
@@ -67,40 +128,94 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const loginScreen = document.getElementById('login-screen');
-        const dashboard = document.getElementById('dashboard');
+        
+        let currentCollection = "basvurular"; 
 
+        // --- AUTH ---
         onAuthStateChanged(auth, (user) => {
-            if (user) { loginScreen.style.display = 'none'; dashboard.style.display = 'block'; loadApplications(); }
-            else { loginScreen.style.display = 'flex'; dashboard.style.display = 'none'; }
+            if (user) { 
+                document.getElementById('login-screen').style.display = 'none'; 
+                document.getElementById('dashboard').style.display = 'block'; 
+                loadApplications(); 
+            } else { 
+                document.getElementById('login-screen').style.display = 'flex'; 
+                document.getElementById('dashboard').style.display = 'none'; 
+            }
         });
 
         document.getElementById('loginBtn').addEventListener('click', () => {
-            signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
-                .catch((err) => document.getElementById('loginError').innerText = "Hatalı Giriş");
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            signInWithEmailAndPassword(auth, email, pass)
+                .catch((err) => document.getElementById('loginError').innerText = "Hatalı E-posta veya Şifre!");
         });
+        
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
+        // --- TAB YÖNETİMİ ---
+        window.switchTab = (type) => {
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            
+            if(type === 'member') {
+                currentCollection = "basvurular";
+                document.getElementById('currentViewTitle').innerHTML = '<i class="fas fa-users"></i> Aile Başvuruları';
+                btns[0].classList.add('active');
+            } else {
+                currentCollection = "yetkili_basvurular";
+                document.getElementById('currentViewTitle').innerHTML = '<i class="fas fa-chess-king"></i> Yönetim Ekibi Başvuruları';
+                btns[1].classList.add('active');
+            }
+            loadApplications();
+        };
+
+        // --- VERİ ÇEKME ---
         async function loadApplications() {
             const grid = document.getElementById('applicationsGrid');
+            grid.innerHTML = '<p style="color:#666">Veriler çekiliyor...</p>';
+
             try {
-                const q = query(collection(db, "basvurular"), orderBy("tarih", "desc"));
+                const q = query(collection(db, currentCollection), orderBy("tarih", "desc"));
                 const querySnapshot = await getDocs(q);
                 grid.innerHTML = '';
-                if (querySnapshot.empty) { grid.innerHTML = '<p>Başvuru yok.</p>'; return; }
+                
+                if (querySnapshot.empty) { grid.innerHTML = '<p>Bu kategoride başvuru yok.</p>'; return; }
+
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
+                    const isStaff = currentCollection === "yetkili_basvurular";
+                    const date = data.tarih ? new Date(data.tarih.seconds * 1000).toLocaleDateString("tr-TR") : "-";
+                    
                     const div = document.createElement('div');
-                    div.className = 'app-card';
-                    div.innerHTML = `
-                        <div class="app-header"><span class="discord-tag">${data.discord}</span></div>
-                        <div style="margin-bottom:5px; color:#fff;">${data.icName} (${data.icAge})</div>
-                        <div class="story-box">${data.story}</div>
-                        <i class="fas fa-trash btn-delete"></i>`;
-                    div.querySelector('.btn-delete').onclick = async () => { if(confirm('Silinsin mi?')) { await deleteDoc(doc(db, "basvurular", docSnap.id)); loadApplications(); }};
+                    div.className = isStaff ? 'app-card staff-card' : 'app-card';
+                    
+                    if(isStaff) {
+                        div.innerHTML = `
+                            <div class="app-header"><span class="discord-tag" style="color:var(--danger)">${data.discord}</span> <span style="font-size:0.8rem; color:#666">${date}</span></div>
+                            <div><span class="label">OOC İsim/Yaş:</span> ${data.oocInfo}</div>
+                            <div><span class="label">Aktiflik:</span> ${data.activeTime}</div>
+                            <div><span class="label">Neden İstiyor?</span> <div class="story-box">${data.reason}</div></div>
+                            <div><span class="label">Tecrübe</span> <div class="story-box">${data.experience}</div></div>
+                            <i class="fas fa-trash btn-delete"></i>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            <div class="app-header"><span class="discord-tag">${data.discord}</span> <span style="font-size:0.8rem; color:#666">${date}</span></div>
+                            <div><span class="label">Karakter Adı:</span> ${data.icName} (${data.icAge})</div>
+                            <div><span class="label">Hikaye:</span> <div class="story-box">${data.story}</div></div>
+                            <i class="fas fa-trash btn-delete"></i>
+                        `;
+                    }
+
+                    div.querySelector('.btn-delete').onclick = async () => { 
+                        if(confirm('Silmek istediğine emin misin?')) { 
+                            await deleteDoc(doc(db, currentCollection, docSnap.id)); 
+                            loadApplications(); 
+                        }
+                    };
                     grid.appendChild(div);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error(err); grid.innerHTML = '<p style="color:red">Hata oluştu.</p>'; }
         }
     </script>
 </body>

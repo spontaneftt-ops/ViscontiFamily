@@ -7,25 +7,58 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --danger: #8a2020; }
+        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --danger: #8a2020; --success: #1a4a25; --success-bright: #2ecc71; --danger-bright: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
+        
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.4); border-bottom: 1px solid #333; }
         .admin-title { font-family: 'Cinzel', serif; color: var(--accent-gold); font-size: 1.5rem; }
-        .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+        .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .btn-logout:hover { border-color: var(--danger-bright); color: var(--danger-bright); }
+
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1014; z-index: 100; display: flex; justify-content: center; align-items: center; }
         .login-box { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--accent-gold); text-align: center; width: 90%; max-width: 400px; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; }
         .btn-login { width: 100%; padding: 12px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; }
-        .dashboard-container { padding: 40px; max-width: 1200px; margin: 0 auto; display: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border-left: 3px solid var(--accent-gold); position: relative; transition: transform 0.2s; }
+
+        .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; display: none; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        
+        .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border-left: 3px solid var(--accent-gold); position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
         .app-card:hover { transform: translateY(-3px); background: #1f2026; }
+        
         .app-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .discord-tag { color: var(--accent-gold); font-weight: bold; }
-        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 100px; overflow-y: auto; margin-top: 10px; }
-        .btn-delete { position: absolute; bottom: 20px; right: 20px; color: #555; cursor: pointer; transition: 0.3s; }
-        .btn-delete:hover { color: var(--danger); }
+        
+        /* Discord Link Stili */
+        .discord-link { color: var(--accent-gold); font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
+        .discord-link:hover { color: #fff; text-shadow: 0 0 10px var(--accent-gold); }
+
+        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 150px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap; margin-bottom: 40px; }
+        
+        /* Aksiyon Butonları */
+        .action-bar { display: flex; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #333; }
+        .btn-action { flex: 1; padding: 8px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-family: 'Cinzel', serif; transition: 0.3s; color: #000; }
+        
+        .btn-approve { background: #27ae60; color: #fff; }
+        .btn-approve:hover { background: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.4); }
+        
+        .btn-reject { background: #c0392b; color: #fff; }
+        .btn-reject:hover { background: #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
+
+        .btn-delete-icon { position: absolute; bottom: 20px; right: 20px; color: #555; cursor: pointer; transition: 0.3s; font-size: 1.2rem; }
+        .btn-delete-icon:hover { color: var(--danger-bright); }
+
+        /* Durum Stilleri */
+        .status-badge { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        .status-Beklemede { color: #f1c40f; background: rgba(241, 196, 15, 0.1); }
+        .status-Onaylandı { color: var(--success-bright); background: rgba(46, 204, 113, 0.1); border: 1px solid var(--success-bright); }
+        .status-Reddedildi { color: var(--danger-bright); background: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger-bright); }
+
+        /* Scrollbar Özelleştirme */
+        .story-box::-webkit-scrollbar { width: 5px; }
+        .story-box::-webkit-scrollbar-track { background: #111; }
+        .story-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
     </style>
 </head>
 <body>
@@ -50,7 +83,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -67,6 +100,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // Discord Webhook URL
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
         const loginScreen = document.getElementById('login-screen');
         const dashboard = document.getElementById('dashboard');
 
@@ -81,6 +118,51 @@
         });
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
+        // --- MAFYATİK DISCORD BİLDİRİM FONKSİYONU ---
+        async function sendToDiscord(data, status) {
+            let color, title, desc, fields, thumbnail;
+            
+            if (status === "Onaylandı") {
+                // YEŞİL / ALTIN TEMA - OLUMLU
+                color = 3066993; // Koyu Yeşil (0x2ecc71)
+                title = "⚜️ VISCONTI KONSEY KARARI: KABUL";
+                desc = `Bu bildiri, **${data.icName}** isimli şahsın aile tarafından tanındığını ve koruma altına alındığını beyan eder.\n\n*"Sadakat, kanla mühürlenir."*`;
+                fields = [
+                    { name: "👤 Kimlik", value: data.icName, inline: true },
+                    { name: "📡 İletişim", value: `<@${data.discord}>`, inline: true },
+                    { name: "📜 Hüküm", value: "```diff\n+ ONAYLANDI (AİLE ÜYESİ)\n```" }
+                ];
+            } else {
+                // KAN KIRMIZISI TEMA - OLUMSUZ
+                color = 9052192; // Kan Kırmızısı (0x8a2020)
+                title = "💀 VISCONTI MAHKEMESİ: HÜKÜMSÜZ";
+                desc = `**${data.icName}** isimli şahsın başvurusu konsey tarafından incelenmiş ve **yetersiz** bulunmuştur.\n\n*"Kapılarımız kapalı, gölgeler sana uzak."*`;
+                fields = [
+                    { name: "👤 Kimlik", value: data.icName, inline: true },
+                    { name: "📡 İletişim", value: `<@${data.discord}>`, inline: true },
+                    { name: "⚖️ Karar", value: "```diff\n- REDDEDİLDİ (Dosya Kapatıldı)\n```" }
+                ];
+            }
+
+            try {
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: "Visconti High Council",
+                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
+                        embeds: [{
+                            title: title,
+                            description: desc,
+                            color: color,
+                            fields: fields,
+                            footer: { text: "Visconti Family • Omerta Yasaları", icon_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg" }, 
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+            } catch (err) { console.error("Discord Hatası:", err); }
+        }
+
         async function loadApplications() {
             const grid = document.getElementById('applicationsGrid');
             try {
@@ -88,21 +170,60 @@
                 const querySnapshot = await getDocs(q);
                 grid.innerHTML = '';
                 if (querySnapshot.empty) { grid.innerHTML = '<p>Başvuru yok.</p>'; return; }
+                
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
+                    const docId = docSnap.id;
                     const div = document.createElement('div');
                     div.className = 'app-card';
+                    
+                    const discordLink = `https://discord.com/users/${data.discord}`;
+                    
                     div.innerHTML = `
-                        <div class="app-header"><span class="discord-tag">${data.discord}</span></div>
-                        <div style="margin-bottom:5px; color:#fff;">${data.icName} (${data.icAge})</div>
+                        <div class="app-header">
+                            <a href="${discordLink}" target="_blank" class="discord-link" title="Discord Profiline Git">
+                                <i class="fab fa-discord"></i> ${data.discord} <i class="fas fa-external-link-alt" style="font-size:0.7rem; margin-left:5px;"></i>
+                            </a>
+                            <span class="status-badge status-${data.durum}">${data.durum}</span>
+                        </div>
+                        <div style="margin-bottom:5px; color:#fff; font-weight:bold;">${data.icName} (${data.icAge})</div>
                         <div class="story-box">${data.story}</div>
-                        <i class="fas fa-trash btn-delete"></i>`;
-                    div.querySelector('.btn-delete').onclick = async () => { if(confirm('Silinsin mi?')) { await deleteDoc(doc(db, "basvurular", docSnap.id)); loadApplications(); }};
+                        
+                        <div class="action-bar">
+                            <button class="btn-action btn-approve" onclick="window.approveApp('${docId}', '${data.discord}', '${data.icName}')">ONAYLA</button>
+                            <button class="btn-action btn-reject" onclick="window.rejectApp('${docId}', '${data.discord}', '${data.icName}')">REDDET</button>
+                        </div>
+                        <i class="fas fa-trash btn-delete-icon" onclick="window.deleteApp('${docId}')" title="Kalıcı Sil"></i>
+                    `;
                     grid.appendChild(div);
                 });
             } catch (err) { console.error(err); }
         }
+
+        window.approveApp = async (id, discord, icName) => {
+            if(!confirm(`${icName} başvurusunu onaylıyor musun?`)) return;
+            try {
+                await updateDoc(doc(db, "basvurular", id), { durum: "Onaylandı" });
+                await sendToDiscord({ discord, icName }, "Onaylandı");
+                loadApplications();
+            } catch (err) { console.error(err); alert("Hata oluştu"); }
+        };
+
+        window.rejectApp = async (id, discord, icName) => {
+            if(!confirm(`${icName} başvurusunu reddediyor musun?`)) return;
+            try {
+                await updateDoc(doc(db, "basvurular", id), { durum: "Reddedildi" });
+                await sendToDiscord({ discord, icName }, "Reddedildi");
+                loadApplications();
+            } catch (err) { console.error(err); alert("Hata oluştu"); }
+        };
+
+        window.deleteApp = async (id) => {
+            if(confirm('Bu kaydı tamamen silmek istediğine emin misin?')) {
+                await deleteDoc(doc(db, "basvurular", id));
+                loadApplications();
+            }
+        };
     </script>
 </body>
-
 </html>

@@ -8,38 +8,121 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { --bg-color: #0f1014; --card-bg: #18191e; --text-color: #c4c4c4; --accent-gold: #cfb53b; --accent-dark: #8a7620; }
+        /* --- TEMEL AYARLAR --- */
+        :root { 
+            --bg-color: #0f1014; 
+            --card-bg: #18191e; 
+            --text-color: #c4c4c4; 
+            --accent-gold: #cfb53b; 
+            --accent-green: #1a4a25; /* Ejderha yeşili için yan renk */
+            --accent-dark: #8a7620; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; position: relative; }
         h1, h2, h3 { font-family: 'Cinzel', serif; color: #fff; }
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 10%, rgba(207, 181, 59, 0.05), transparent 60%); z-index: -1; pointer-events: none; }
-        header { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-text { font-size: 3rem; text-transform: uppercase; color: var(--accent-gold); text-shadow: 0 0 15px rgba(207, 181, 59, 0.3); }
+
+        /* ARKA PLAN EFEKTİ */
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 20%, rgba(207, 181, 59, 0.08), transparent 70%); z-index: -1; pointer-events: none; }
+
+        /* --- HEADER & LOGO --- */
+        header { 
+            padding: 40px 20px; 
+            text-align: center; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Logo Stili */
+        .crest-logo {
+            width: 180px; /* Logo boyutu */
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px rgba(207, 181, 59, 0.4)); /* Altın parıltı */
+            animation: float 6s ease-in-out infinite; /* Süzülme efekti */
+            border-radius: 50%; /* Keskin köşeleri yumuşatır */
+        }
+
+        .logo-text { font-size: 3rem; text-transform: uppercase; color: var(--accent-gold); text-shadow: 0 0 15px rgba(207, 181, 59, 0.3); letter-spacing: 2px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* --- GİZLİ ADMIN BUTONU (SAĞ ÜST) --- */
+        .secret-admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.05); /* Neredeyse görünmez */
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.5s ease;
+            z-index: 999;
+            padding: 10px;
+        }
+
+        .secret-admin-btn:hover {
+            color: var(--accent-gold); /* Üzerine gelince parlar */
+            transform: rotate(45deg) scale(1.2);
+            text-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        /* --- FORM ALANI --- */
         .container { max-width: 800px; margin: 0 auto; padding: 50px 20px; }
-        section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #fff; }
+        section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        
+        /* Kartın arkasına hafif logo silüeti */
+        section::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(207, 181, 59, 0.03), transparent 60%);
+            pointer-events: none;
+        }
+
+        .form-group { margin-bottom: 20px; position: relative; z-index: 2; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; }
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 6px; color: #fff; font-family: 'Inter', sans-serif; transition: 0.3s; }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 10px rgba(207, 181, 59, 0.1); }
-        .btn-submit { width: 100%; padding: 18px; background: linear-gradient(45deg, var(--accent-dark), var(--accent-gold)); border: none; color: #000; font-weight: 800; font-family: 'Cinzel', serif; cursor: pointer; border-radius: 6px; transition: 0.4s; font-size: 1.1rem; }
-        .btn-submit:hover { filter: brightness(1.2); }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(207, 181, 59, 0.15); background: rgba(0,0,0,0.5); }
+        
+        .btn-submit { width: 100%; padding: 18px; background: linear-gradient(45deg, var(--accent-dark), var(--accent-gold)); border: none; color: #000; font-weight: 800; font-family: 'Cinzel', serif; cursor: pointer; border-radius: 6px; transition: 0.4s; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+        .btn-submit:hover { filter: brightness(1.2); box-shadow: 0 0 20px rgba(207, 181, 59, 0.4); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo-text { font-size: 2rem; }
+            .crest-logo { width: 140px; }
+        }
     </style>
 </head>
 <body>
+
+    <a href="admin.html" class="secret-admin-btn" title="Baron Girişi">
+        <i class="fas fa-key"></i>
+    </a>
+
     <div class="bg-overlay"></div>
+
     <header>
+        <img src="Visconti.jpg" alt="Visconti Crest" class="crest-logo">
+        
         <div class="logo-text">Visconti Ailesi</div>
-        <p style="color: #666; margin-top: 10px;">Veltora RolePlay Başvuru Sistemi</p>
+        <p style="color: #888; margin-top: 5px; font-size: 0.9rem; letter-spacing: 3px;">"GÜÇ. SADAKAT. ONUR."</p>
     </header>
+
     <div class="container">
         <section>
-            <h2 style="margin-bottom: 20px; color: var(--accent-gold);"><i class="fas fa-file-contract"></i> Başvuru Formu</h2>
+            <h2 style="margin-bottom: 25px; color: var(--accent-gold); text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                <i class="fas fa-scroll"></i> Resmi Başvuru Kaydı
+            </h2>
             <form id="viscontiForm">
-                <div class="form-group"><label>Discord ID</label><input type="text" id="discord_id" required placeholder="örn: kullanıcı#1234"></div>
-                <div class="form-group"><label>IC İsim Soyisim</label><input type="text" id="ic_name" required placeholder="Karakter Adı"></div>
-                <div class="form-group"><label>Yaş (IC)</label><input type="number" id="ic_age" required placeholder="18+"></div>
-                <div class="form-group"><label>Hikaye & Deneyim</label><textarea id="story" rows="5" required placeholder="Karakter hikayeniz ve RP geçmişiniz..."></textarea></div>
-                <button type="submit" class="btn-submit" id="submitBtn">Başvuruyu Gönder</button>
+                <div class="form-group"><label>Discord Kimliği</label><input type="text" id="discord_id" required placeholder="örn: kullanıcı#1234"></div>
+                <div class="form-group"><label>IC Ad Soyad</label><input type="text" id="ic_name" required placeholder="Karakter Adı"></div>
+                <div class="form-group"><label>Karakter Yaşı</label><input type="number" id="ic_age" required placeholder="18+"></div>
+                <div class="form-group"><label>Karakter Hikayesi & Deneyim</label><textarea id="story" rows="5" required placeholder="Kendinizi ve geçmişinizi anlatın..."></textarea></div>
+                <button type="submit" class="btn-submit" id="submitBtn">Mühürle ve Gönder</button>
             </form>
         </section>
     </div>
@@ -48,6 +131,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
             authDomain: "veltora.firebaseapp.com",
@@ -63,6 +147,7 @@
         const db = getFirestore(app);
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
+        // GÖNDERME İŞLEMİ
         document.getElementById('viscontiForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -71,35 +156,47 @@
             const icAge = document.getElementById('ic_age').value;
             const story = document.getElementById('story').value;
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
             btn.disabled = true;
 
             try {
+                // 1. Firebase Kayıt
                 const firebasePromise = addDoc(collection(db, "basvurular"), {
                     discord: discordId, icName: icName, icAge: icAge, story: story,
                     tarih: serverTimestamp(), durum: "Beklemede"
                 });
 
+                // 2. Discord Webhook
                 const discordPromise = fetch(DISCORD_WEBHOOK_URL, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        username: "Visconti Başvuru", avatar_url: "https://i.imgur.com/AfFp7pu.png",
+                        username: "Visconti Hanedanı", 
+                        // NOT: Avatar URL'sini de GitHub linkinle değiştirebilirsin
+                        avatar_url: "https://raw.githubusercontent.com/GITHUB_KULLANICI_ADIN/REPO_ADIN/main/Visconti.jpg",
                         embeds: [{
-                            title: "📜 Yeni Aile Başvurusu", description: `**${icName}** başvuru yaptı.`, color: 13612347,
-                            fields: [{ name: "Discord", value: discordId, inline: true }, { name: "IC İsim", value: icName, inline: true }, { name: "Yaş", value: icAge, inline: true }, { name: "Hikaye", value: story.substring(0, 1000) }],
-                            footer: { text: "Visconti System" }, timestamp: new Date().toISOString()
+                            title: "⚔️ Yeni Hanedan Başvurusu", 
+                            description: `**${icName}** aileye katılmak istiyor.`, 
+                            color: 13612347, // Gold
+                            thumbnail: { url: "https://raw.githubusercontent.com/GITHUB_KULLANICI_ADIN/REPO_ADIN/main/Visconti.jpg" },
+                            fields: [
+                                { name: "Discord", value: discordId, inline: true }, 
+                                { name: "Karakter", value: icName, inline: true }, 
+                                { name: "Yaş", value: icAge, inline: true }, 
+                                { name: "Hikaye", value: story.substring(0, 1000) }
+                            ],
+                            footer: { text: "Visconti Family System" }, timestamp: new Date().toISOString()
                         }]
                     })
                 });
 
                 await Promise.all([firebasePromise, discordPromise]);
-                alert("Başvuru iletildi!");
+                alert("Başvurunuz Visconti Konseyine sunuldu.");
                 document.getElementById('viscontiForm').reset();
             } catch (error) {
                 console.error(error);
-                alert("Hata oluştu.");
+                alert("Bağlantı hatası.");
             } finally {
-                btn.innerHTML = 'Başvuruyu Gönder';
+                btn.innerHTML = 'Mühürle ve Gönder';
                 btn.disabled = false;
             }
         });

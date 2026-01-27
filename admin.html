@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visconti Admin</title>
+    <title>Visconti Admin | High Council</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -11,50 +11,61 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
         
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.4); border-bottom: 1px solid #333; }
-        .admin-title { font-family: 'Cinzel', serif; color: var(--accent-gold); font-size: 1.5rem; }
+        /* Header */
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.6); border-bottom: 1px solid #333; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+        .admin-title { font-family: 'Cinzel', serif; color: var(--accent-gold); font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
         .btn-logout { background: transparent; border: 1px solid #666; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 4px; transition: 0.3s; }
         .btn-logout:hover { border-color: var(--danger-bright); color: var(--danger-bright); }
 
+        /* Login */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1014; z-index: 100; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--accent-gold); text-align: center; width: 90%; max-width: 400px; }
+        .login-box { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--accent-gold); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 0 50px rgba(207, 181, 59, 0.1); }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; }
-        .btn-login { width: 100%; padding: 12px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; }
+        .btn-login { width: 100%; padding: 12px; background: var(--accent-gold); border: none; font-weight: bold; cursor: pointer; color: #000; border-radius: 4px; margin-top: 10px; font-family: 'Cinzel', serif; }
 
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; justify-content: center; margin-top: 20px; gap: 20px; }
+        .tab-btn { background: transparent; border: 1px solid #333; color: #666; padding: 10px 30px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1.1rem; border-radius: 6px; transition: 0.3s; }
+        .tab-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(207, 181, 59, 0.05); box-shadow: 0 0 15px rgba(207, 181, 59, 0.2); }
+        .tab-btn:hover { color: #fff; }
+
+        /* Dashboard */
         .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; display: none; }
+        .section-view { display: none; } /* Tab content control */
+        .section-view.active { display: block; }
+        
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         
-        .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border-left: 3px solid var(--accent-gold); position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
-        .app-card:hover { transform: translateY(-3px); background: #1f2026; }
+        .app-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid #333; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
+        .app-card:hover { transform: translateY(-3px); border-color: #444; }
+        .app-card.member-card { border-left: 3px solid var(--accent-gold); }
         
         .app-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
-        /* Discord Link Stili */
-        .discord-link { color: var(--accent-gold); font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
-        .discord-link:hover { color: #fff; text-shadow: 0 0 10px var(--accent-gold); }
+        .discord-link { color: #7289da; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
+        .discord-link:hover { color: #fff; }
 
-        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 150px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap; margin-bottom: 40px; }
+        .story-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; max-height: 150px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap; margin-bottom: 20px; color: #aaa; }
         
-        /* Aksiyon Butonları */
+        /* Rank Selector Styles */
+        .rank-selector-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #333; }
+        .rank-label { font-size: 0.8rem; color: var(--accent-gold); margin-bottom: 5px; display: block; font-family: 'Cinzel', serif; }
+        .rank-select { width: 100%; background: #0a0a0c; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 4px; cursor: pointer; outline: none; font-family: 'Inter', sans-serif; }
+        .rank-select option { background: #18191e; padding: 10px; }
+
+        /* Action Buttons */
         .action-bar { display: flex; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #333; }
         .btn-action { flex: 1; padding: 8px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-family: 'Cinzel', serif; transition: 0.3s; color: #000; }
-        
         .btn-approve { background: #27ae60; color: #fff; }
         .btn-approve:hover { background: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.4); }
-        
         .btn-reject { background: #c0392b; color: #fff; }
         .btn-reject:hover { background: #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
-
         .btn-delete-icon { position: absolute; bottom: 20px; right: 20px; color: #555; cursor: pointer; transition: 0.3s; font-size: 1.2rem; }
         .btn-delete-icon:hover { color: var(--danger-bright); }
 
-        /* Durum Stilleri */
-        .status-badge { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .status-Beklemede { color: #f1c40f; background: rgba(241, 196, 15, 0.1); }
-        .status-Onaylandı { color: var(--success-bright); background: rgba(46, 204, 113, 0.1); border: 1px solid var(--success-bright); }
-        .status-Reddedildi { color: var(--danger-bright); background: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger-bright); }
+        .btn-save-rank { width: 100%; margin-top: 10px; padding: 8px; background: var(--accent-gold); color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .btn-save-rank:hover { filter: brightness(1.2); }
 
-        /* Scrollbar Özelleştirme */
+        /* Scrollbar */
         .story-box::-webkit-scrollbar { width: 5px; }
         .story-box::-webkit-scrollbar-track { background: #111; }
         .story-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
@@ -64,6 +75,7 @@
 <body>
     <div id="login-screen">
         <div class="login-box">
+            <img src="Visconti.jpg" alt="Logo" style="width: 80px; border-radius: 50%; border: 2px solid var(--accent-gold); margin-bottom: 15px;">
             <h2 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 20px;">Baron Girişi</h2>
             <input type="email" id="adminEmail" class="login-input" placeholder="Email">
             <input type="password" id="adminPass" class="login-input" placeholder="Şifre">
@@ -73,19 +85,37 @@
     </div>
 
     <div class="admin-header">
-        <div class="admin-title">Visconti Management</div>
+        <div class="admin-title"><i class="fas fa-chess-king"></i> Visconti Management</div>
         <button class="btn-logout" id="logoutBtn">Çıkış</button>
     </div>
 
     <div class="dashboard-container" id="dashboard">
-        <div class="grid" id="applicationsGrid"><p style="color: #666;">Yükleniyor...</p></div>
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('basvurular')">Başvurular (Yeni)</button>
+            <button class="tab-btn" onclick="switchTab('uyeler')">Aile Konseyi (Üyeler)</button>
+        </div>
+
+        <br><hr style="border-color: #333; opacity: 0.3;"><br>
+
+        <div id="view-basvurular" class="section-view active">
+            <h3 style="color: #888; margin-bottom: 20px; font-family: 'Cinzel', serif;">Bekleyen İncelemeler</h3>
+            <div class="grid" id="applicationsGrid"><p style="color: #666;">Yükleniyor...</p></div>
+        </div>
+
+        <div id="view-uyeler" class="section-view">
+            <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-family: 'Cinzel', serif;">Aktif Aile Üyeleri & Hiyerarşi</h3>
+            <div class="grid" id="membersGrid"><p style="color: #666;">Yükleniyor...</p></div>
+        </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // FIREBASE CONFIG (Seninkilerle aynı)
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
             authDomain: "veltora.firebaseapp.com",
@@ -101,112 +131,172 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         
-        // Discord Webhook URL
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
+        // --- RÜTBE LİSTESİ (RESİMLERE GÖRE) ---
+        // Kadir, buradaki renk kodlarını resimlerdeki renklere yakın ayarladım.
+        const VISCONTI_RANKS = [
+            { name: "Visconti Aile Üyesi", color: "#e74c3c", icon: "🔴" }, // Varsayılan
+            { name: "THE SHROUD", color: "#d4af37", icon: "👑" },
+            { name: "THE DIAMOND", color: "#3498db", icon: "💎" },
+            { name: "THE PRINCESS", color: "#e91e63", icon: "👁️" },
+            { name: "THE ARCHITECT", color: "#2ecc71", icon: "👁️" },
+            { name: "BLOODLINE", color: "#c0392b", icon: "🩸" },
+            { name: "OVERSEER", color: "#95a5a6", icon: "💀" },
+            { name: "GRAVEDIGGER", color: "#8e44ad", icon: "⚰️" },
+            { name: "WRAITH", color: "#bdc3c7", icon: "👻" },
+            { name: "ORACLE", color: "#1abc9c", icon: "🌐" },
+            { name: "HARBINGER", color: "#f1c40f", icon: "⚖️" },
+            { name: "CADAVER", color: "#7f8c8d", icon: "⛓️" },
+            { name: "CLEANER", color: "#f39c12", icon: "💉" }
+        ];
 
         const loginScreen = document.getElementById('login-screen');
         const dashboard = document.getElementById('dashboard');
 
+        // AUTH STATE
         onAuthStateChanged(auth, (user) => {
-            if (user) { loginScreen.style.display = 'none'; dashboard.style.display = 'block'; loadApplications(); }
-            else { loginScreen.style.display = 'flex'; dashboard.style.display = 'none'; }
+            if (user) { 
+                loginScreen.style.display = 'none'; 
+                dashboard.style.display = 'block'; 
+                refreshAllData();
+            } else { 
+                loginScreen.style.display = 'flex'; 
+                dashboard.style.display = 'none'; 
+            }
         });
 
+        // LOGIN / LOGOUT
         document.getElementById('loginBtn').addEventListener('click', () => {
             signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
                 .catch((err) => document.getElementById('loginError').innerText = "Hatalı Giriş");
         });
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // --- MAFYATİK DISCORD BİLDİRİM FONKSİYONU ---
-        async function sendToDiscord(data, status) {
-            let color, title, desc, fields, thumbnail;
+        // TAB SWITCHING
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             
-            if (status === "Onaylandı") {
-                // YEŞİL / ALTIN TEMA - OLUMLU
-                color = 3066993; // Koyu Yeşil (0x2ecc71)
-                title = "⚜️ VISCONTI KONSEY KARARI: KABUL";
-                desc = `Bu bildiri, **${data.icName}** isimli şahsın aile tarafından tanındığını ve koruma altına alındığını beyan eder.\n\n*"Sadakat, kanla mühürlenir."*`;
-                fields = [
-                    { name: "👤 Kimlik", value: data.icName, inline: true },
-                    { name: "📡 İletişim", value: `<@${data.discord}>`, inline: true },
-                    { name: "📜 Hüküm", value: "```diff\n+ ONAYLANDI (AİLE ÜYESİ)\n```" }
-                ];
-            } else {
-                // KAN KIRMIZISI TEMA - OLUMSUZ
-                color = 9052192; // Kan Kırmızısı (0x8a2020)
-                title = "💀 VISCONTI MAHKEMESİ: HÜKÜMSÜZ";
-                desc = `**${data.icName}** isimli şahsın başvurusu konsey tarafından incelenmiş ve **yetersiz** bulunmuştur.\n\n*"Kapılarımız kapalı, gölgeler sana uzak."*`;
-                fields = [
-                    { name: "👤 Kimlik", value: data.icName, inline: true },
-                    { name: "📡 İletişim", value: `<@${data.discord}>`, inline: true },
-                    { name: "⚖️ Karar", value: "```diff\n- REDDEDİLDİ (Dosya Kapatıldı)\n```" }
-                ];
-            }
+            document.getElementById(`view-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+        };
 
-            try {
-                await fetch(DISCORD_WEBHOOK_URL, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        username: "Visconti High Council",
-                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
-                        embeds: [{
-                            title: title,
-                            description: desc,
-                            color: color,
-                            fields: fields,
-                            footer: { text: "Visconti Family • Omerta Yasaları", icon_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg" }, 
-                            timestamp: new Date().toISOString()
-                        }]
-                    })
-                });
-            } catch (err) { console.error("Discord Hatası:", err); }
+        async function refreshAllData() {
+            loadApplications(); // Bekleyenler
+            loadMembers();      // Onaylanmış Üyeler
         }
 
+        // --- 1. SEKMES: BAŞVURULAR (BEKLEYENLER) ---
         async function loadApplications() {
             const grid = document.getElementById('applicationsGrid');
+            grid.innerHTML = '<p style="color:#666">Yükleniyor...</p>';
+            
             try {
-                const q = query(collection(db, "basvurular"), orderBy("tarih", "desc"));
+                // Sadece beklemede olanları getir
+                const q = query(collection(db, "basvurular"), where("durum", "==", "Beklemede"));
                 const querySnapshot = await getDocs(q);
                 grid.innerHTML = '';
-                if (querySnapshot.empty) { grid.innerHTML = '<p>Başvuru yok.</p>'; return; }
+                
+                if (querySnapshot.empty) { grid.innerHTML = '<p style="color:#666">Bekleyen başvuru yok.</p>'; return; }
                 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const docId = docSnap.id;
+                    
                     const div = document.createElement('div');
                     div.className = 'app-card';
-                    
-                    const discordLink = `https://discord.com/users/${data.discord}`;
-                    
                     div.innerHTML = `
                         <div class="app-header">
-                            <a href="${discordLink}" target="_blank" class="discord-link" title="Discord Profiline Git">
-                                <i class="fab fa-discord"></i> ${data.discord} <i class="fas fa-external-link-alt" style="font-size:0.7rem; margin-left:5px;"></i>
-                            </a>
-                            <span class="status-badge status-${data.durum}">${data.durum}</span>
+                            <span class="discord-link"><i class="fab fa-discord"></i> ${data.discord}</span>
+                            <span style="color:#f1c40f; font-size:0.8rem; border:1px solid #f1c40f; padding:2px 6px; border-radius:4px;">BEKLEMEDE</span>
                         </div>
-                        <div style="margin-bottom:5px; color:#fff; font-weight:bold;">${data.icName} (${data.icAge})</div>
+                        <div style="color:#fff; font-weight:bold; margin-bottom:5px;">${data.icName} (${data.icAge})</div>
                         <div class="story-box">${data.story}</div>
-                        
                         <div class="action-bar">
                             <button class="btn-action btn-approve" onclick="window.approveApp('${docId}', '${data.discord}', '${data.icName}')">ONAYLA</button>
                             <button class="btn-action btn-reject" onclick="window.rejectApp('${docId}', '${data.discord}', '${data.icName}')">REDDET</button>
                         </div>
-                        <i class="fas fa-trash btn-delete-icon" onclick="window.deleteApp('${docId}')" title="Kalıcı Sil"></i>
+                        <i class="fas fa-trash btn-delete-icon" onclick="window.deleteApp('${docId}')"></i>
+                    `;
+                    grid.appendChild(div);
+                });
+            } catch (err) { console.error(err); grid.innerHTML = '<p style="color:red">Veri hatası.</p>'; }
+        }
+
+        // --- 2. SEKMES: AİLE ÜYELERİ (ONAYLANMIŞLAR) ---
+        async function loadMembers() {
+            const grid = document.getElementById('membersGrid');
+            grid.innerHTML = '<p style="color:#666">Konsey toplanıyor...</p>';
+
+            try {
+                const q = query(collection(db, "basvurular"), where("durum", "==", "Onaylandı"));
+                const querySnapshot = await getDocs(q);
+                grid.innerHTML = '';
+
+                if (querySnapshot.empty) { grid.innerHTML = '<p style="color:#666">Henüz üye yok.</p>'; return; }
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id;
+                    const currentRank = data.rank || "Visconti Aile Üyesi"; // Varsayılan rütbe
+
+                    // Rütbe Dropdown HTML Oluşturma
+                    let rankOptions = '';
+                    VISCONTI_RANKS.forEach(r => {
+                        const isSelected = r.name === currentRank ? 'selected' : '';
+                        rankOptions += `<option value="${r.name}" style="color:${r.color}" ${isSelected}>${r.icon} ${r.name}</option>`;
+                    });
+
+                    const div = document.createElement('div');
+                    div.className = 'app-card member-card';
+                    div.style.borderColor = getRankColor(currentRank); // Kartın kenarını rütbe rengi yap
+                    
+                    div.innerHTML = `
+                        <div class="app-header">
+                            <span class="discord-link"><i class="fab fa-discord"></i> ${data.discord}</span>
+                            <i class="fas fa-check-circle" style="color: #2ecc71;"></i>
+                        </div>
+                        <div style="color:#fff; font-weight:bold;">${data.icName}</div>
+                        <div style="color:#666; font-size:0.85rem; margin-bottom:10px;">Yaş: ${data.icAge}</div>
+                        
+                        <div class="story-box" style="max-height:80px;">${data.story.substring(0, 150)}...</div>
+
+                        <div class="rank-selector-container">
+                            <label class="rank-label">Rütbe / Atama</label>
+                            <select id="rank-${docId}" class="rank-select">
+                                ${rankOptions}
+                            </select>
+                            <button class="btn-save-rank" onclick="window.updateMemberRank('${docId}', '${data.discord}', '${data.icName}')">
+                                <i class="fas fa-save"></i> Rütbeyi Kaydet
+                            </button>
+                        </div>
+                        
+                        <i class="fas fa-user-slash btn-delete-icon" onclick="window.kickMember('${docId}', '${data.icName}')" title="Aileden At"></i>
                     `;
                     grid.appendChild(div);
                 });
             } catch (err) { console.error(err); }
         }
 
+        function getRankColor(rankName) {
+            const rank = VISCONTI_RANKS.find(r => r.name === rankName);
+            return rank ? rank.color : '#333';
+        }
+
+        // --- GÜNCELLEME İŞLEMLERİ ---
+
         window.approveApp = async (id, discord, icName) => {
             if(!confirm(`${icName} başvurusunu onaylıyor musun?`)) return;
             try {
-                await updateDoc(doc(db, "basvurular", id), { durum: "Onaylandı" });
+                // Onaylanınca varsayılan rütbeyi de ekliyoruz
+                await updateDoc(doc(db, "basvurular", id), { 
+                    durum: "Onaylandı",
+                    rank: "Visconti Aile Üyesi"
+                });
                 await sendToDiscord({ discord, icName }, "Onaylandı");
-                loadApplications();
-            } catch (err) { console.error(err); alert("Hata oluştu"); }
+                refreshAllData();
+            } catch (err) { alert("Hata: " + err.message); }
         };
 
         window.rejectApp = async (id, discord, icName) => {
@@ -214,16 +304,102 @@
             try {
                 await updateDoc(doc(db, "basvurular", id), { durum: "Reddedildi" });
                 await sendToDiscord({ discord, icName }, "Reddedildi");
-                loadApplications();
-            } catch (err) { console.error(err); alert("Hata oluştu"); }
+                refreshAllData();
+            } catch (err) { alert("Hata: " + err.message); }
+        };
+
+        window.updateMemberRank = async (docId, discord, icName) => {
+            const select = document.getElementById(`rank-${docId}`);
+            const newRank = select.value;
+            
+            const btn = select.nextElementSibling;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                await updateDoc(doc(db, "basvurular", docId), { rank: newRank });
+                await sendRankUpdateToDiscord(discord, icName, newRank); // Yeni Webhook Bildirimi
+                alert(`${icName} artık: ${newRank}`);
+                refreshAllData();
+            } catch (err) {
+                console.error(err);
+                alert("Güncelleme başarısız.");
+            }
+        };
+
+        window.kickMember = async (id, icName) => {
+            if(confirm(`${icName} kişisini aileden atıp kaydını silmek istiyor musun?`)) {
+                await deleteDoc(doc(db, "basvurular", id));
+                refreshAllData();
+            }
         };
 
         window.deleteApp = async (id) => {
-            if(confirm('Bu kaydı tamamen silmek istediğine emin misin?')) {
+            if(confirm('Kayıt silinecek. Emin misin?')) {
                 await deleteDoc(doc(db, "basvurular", id));
-                loadApplications();
+                refreshAllData();
             }
         };
+
+        // --- DISCORD BİLDİRİMLERİ ---
+
+        async function sendToDiscord(data, status) {
+            let embedData = {};
+            if (status === "Onaylandı") {
+                embedData = {
+                    title: "⚜️ VISCONTI KONSEY KARARI: KABUL",
+                    desc: `**${data.icName}** aileye kabul edilmiştir. Rütbesi verilene kadar gözetim altındadır.`,
+                    color: 3066993,
+                    fields: [{ name: "Kişi", value: `<@${data.discord}>`, inline: true }, { name: "Durum", value: "Aile Üyesi", inline: true }]
+                };
+            } else {
+                embedData = {
+                    title: "💀 VISCONTI MAHKEMESİ: RET",
+                    desc: `**${data.icName}** başvurusu yetersiz görülmüştür.`,
+                    color: 9052192,
+                    fields: [{ name: "Kişi", value: `<@${data.discord}>`, inline: true }]
+                };
+            }
+            // Fetch isteği aynı...
+            await postWebhook(embedData);
+        }
+
+        async function sendRankUpdateToDiscord(discord, icName, newRank) {
+            // Rütbe rengini bul
+            const rankObj = VISCONTI_RANKS.find(r => r.name === newRank);
+            const rankColorInt = parseInt(rankObj.color.replace("#", ""), 16);
+
+            const embedData = {
+                title: "⚖️ VISCONTI RÜTBE ATAMASI",
+                desc: `Konsey kararıyla rütbe değişikliği yapılmıştır.\n\n👤 **İsim:** ${icName}\n🔰 **Yeni Rütbe:** ${newRank}`,
+                color: rankColorInt,
+                fields: [
+                    { name: "İletişim", value: `<@${discord}>`, inline: true },
+                    { name: "Tarih", value: new Date().toLocaleDateString('tr-TR'), inline: true }
+                ]
+            };
+            await postWebhook(embedData);
+        }
+
+        async function postWebhook(embedData) {
+            try {
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: "Visconti High Council",
+                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
+                        embeds: [{
+                            title: embedData.title,
+                            description: embedData.desc,
+                            color: embedData.color,
+                            fields: embedData.fields,
+                            footer: { text: "Visconti Family • Omerta", icon_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg" },
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+            } catch(e) { console.error("Discord Error", e); }
+        }
+
     </script>
 </body>
 </html>

@@ -32,16 +32,17 @@
         <div class="workspace">
             <div class="sidebar">
                 <div class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</div>
+                
                 <div class="module-btn restricted role-apps" onclick="showModule('apps')"><i class="fas fa-folder-open"></i> Başvurular <span id="app-count" style="background:#c0392b; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span></div>
                 <div class="module-btn restricted role-perms" onclick="showModule('perms')"><i class="fas fa-users-cog"></i> Personel & Yetkiler</div>
                 
                 <div class="module-btn restricted role-finance" onclick="showModule('finance')"><i class="fas fa-coins"></i> Kasa (Diamond)</div>
+                <div class="module-btn restricted role-diplo" onclick="showModule('diplo')"><i class="fas fa-handshake"></i> Diplomasi</div>
                 <div class="module-btn restricted role-strategy" onclick="showModule('strategy')"><i class="fas fa-map-marked-alt"></i> Bölge & İnşaat</div>
+                <div class="module-btn restricted role-cyber" onclick="showModule('cyber')"><i class="fas fa-network-wired"></i> Siber Ağ (Oracle)</div>
                 <div class="module-btn restricted role-intel" onclick="showModule('intel')"><i class="fas fa-user-secret"></i> İstihbarat (Wraith)</div>
                 <div class="module-btn restricted role-hitlist" onclick="showModule('hitlist')"><i class="fas fa-crosshairs"></i> İnfaz Listesi</div>
-                <div class="module-btn restricted role-diplo" onclick="showModule('diplo')"><i class="fas fa-handshake"></i> Diplomasi</div>
                 <div class="module-btn restricted role-blacklist" onclick="showModule('blacklist')"><i class="fas fa-gavel"></i> Blacklist (Overseer)</div>
-                <div class="module-btn restricted role-cyber" onclick="showModule('cyber')"><i class="fas fa-network-wired"></i> Siber Ağ (Oracle)</div>
                 <div class="module-btn restricted role-clean" onclick="showModule('cleanup')"><i class="fas fa-biohazard"></i> Temizlik (Cleaner)</div>
             </div>
 
@@ -49,7 +50,7 @@
                 
                 <div id="mod-dashboard" class="module-view active">
                     <h2 style="color: #cfb53b; border-bottom: 1px solid #333; padding-bottom: 10px;">Hoş Geldin</h2>
-                    <p>Visconti Mainframe aktif.</p>
+                    <p>Visconti Mainframe aktif. Sol menüden işlemleri gerçekleştirebilirsin.</p>
                 </div>
 
                 <div id="mod-apps" class="module-view">
@@ -163,7 +164,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -180,10 +181,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // WEBHOOK URL (BURAYI KENDİ URL'İNLE DEĞİŞTİR)
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
         let currentUser = null;
 
+        // ROL LİSTESİ
         const RANK_LIST = ['THE SHROUD', 'THE DIAMOND', 'THE PRINCESS', 'THE ARCHITECT', 'BLOODLINE', 'OVERSEER', 'GRAVEDIGGER', 'WRAITH', 'ORACLE', 'HARBINGER', 'CADAVER', 'CLEANER', 'VISCONTI Aile Üyesi'];
 
+        // YETKİ MATRİSİ
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
             'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
@@ -215,10 +222,21 @@
         document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
 
         async function checkUser(email) {
+            // BACKDOOR
             if(email === "baron@visconti.family") {
                 setupSession("Kadir Baba", "THE SHROUD", true);
+                return;
+            }
+            
+            // NORMAL GİRİŞ (systemEmail ile kontrol)
+            const q = query(collection(db, "basvurular"), where("systemEmail", "==", email));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const data = querySnapshot.docs[0].data();
+                setupSession(data.icName, data.rank, false);
             } else {
-                alert("Sadece Baron girişi aktif. (baron@visconti.family)");
+                alert("Yetkisiz giriş. Sadece Baron ve onaylı üyeler girebilir.");
                 signOut(auth);
             }
         }
@@ -251,7 +269,7 @@
         };
 
         window.deleteItem = async (col, id) => {
-            if(confirm("Silmek istediğine emin misin?")) await deleteDoc(doc(db, col, id));
+            if(confirm("Bu veriyi silmek istediğine emin misin?")) await deleteDoc(doc(db, col, id));
         };
 
         window.updateUserRank = async (id) => {
@@ -260,7 +278,7 @@
             alert("Rütbe güncellendi: " + newRank);
         };
 
-        // Veri Ekleme
+        // --- DATA EKLEME (TÜM MODÜLLER) ---
         window.addFinance = async () => { const d=document.getElementById('fin-desc').value; const a=document.getElementById('fin-amount').value; const t=document.getElementById('fin-type').value; if(d) await addDoc(collection(db, "vom_finance"), { desc:d, amount:a, type:t, user:currentUser, date:serverTimestamp() }); };
         window.addNote = async (type, id) => { const v=document.getElementById(id).value; if(v) await addDoc(collection(db, `vom_${type}`), { info:v, user:currentUser, date:serverTimestamp() }); document.getElementById(id).value = ""; };
         window.addCyber = async () => { const t=document.getElementById('cyber-target').value; const i=document.getElementById('cyber-info').value; if(t) await addDoc(collection(db, "vom_cyber"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
@@ -269,7 +287,7 @@
         window.addHit = async () => { const t=document.getElementById('hit-target').value; const p=document.getElementById('hit-prio').value; if(t) await addDoc(collection(db, "vom_hitlist"), { info:`HEDEF: ${t} | ÖNCELİK: ${p}`, user:currentUser, date:serverTimestamp() }); };
         window.addBlacklist = async () => { const n=document.getElementById('bl-name').value; const r=document.getElementById('bl-reason').value; if(n) await addDoc(collection(db, "vom_blacklist"), { info:`KİŞİ: ${n} | SUÇ: ${r}`, user:currentUser, date:serverTimestamp() }); };
 
-        // Listeners
+        // --- LİSTENERLAR ---
         function initListeners() {
             onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
                 let htmlApps = '', htmlPersonnel = '', pendingCount = 0;
@@ -313,10 +331,68 @@
             });
         }
 
-        window.decideApp = async (id, app) => {
-            const r = document.getElementById(`rank-${id}`).value;
-            if(app && !r) return alert("Rütbe seç!");
-            await updateDoc(doc(db, "basvurular", id), { durum: app ? "Onaylandı" : "Reddedildi", rank: app ? r : "Red", processedAt: serverTimestamp() });
+        // --- KARAR VE WEBHOOK ---
+        window.decideApp = async (id, isApproved) => {
+            try {
+                const rankVal = document.getElementById(`rank-${id}`).value;
+                if(isApproved && !rankVal) { alert("Lütfen rütbe seçin!"); return; }
+
+                // 1. Veriyi çek (isim lazım)
+                const docRef = doc(db, "basvurular", id);
+                const docSnap = await getDoc(docRef);
+                const userData = docSnap.data();
+
+                let updateData = {
+                    durum: isApproved ? "Onaylandı" : "Reddedildi",
+                    processedBy: currentUser,
+                    processedAt: serverTimestamp()
+                };
+
+                let discordMsg = "";
+                let colorCode = 0;
+
+                if (isApproved) {
+                    // Kullanıcı Oluştur (Email/Şifre)
+                    const sysEmail = userData.icName.toLowerCase().replace(/\s+/g, '.') + "@visconti.family";
+                    const sysPass = Math.random().toString(36).slice(-8); // Rastgele şifre
+                    
+                    updateData.rank = rankVal;
+                    updateData.systemEmail = sysEmail;
+                    updateData.systemPassword = sysPass;
+
+                    colorCode = 3066993; // Yeşil
+                    discordMsg = `✅ **KABUL EDİLDİ!**\n\n👤 **Kişi:** ${userData.icName}\n🔰 **Rütbe:** ${rankVal}\n\n🔑 **Giriş Bilgileri:**\nID: \`${sysEmail}\`\nŞifre: \`${sysPass}\``;
+                } else {
+                    updateData.rank = "Red";
+                    colorCode = 15158332; // Kırmızı
+                    discordMsg = `⛔ **REDDEDİLDİ.**\n\n👤 **Kişi:** ${userData.icName}\nReddeden: ${currentUser}`;
+                }
+
+                // 2. Veritabanını Güncelle
+                await updateDoc(docRef, updateData);
+
+                // 3. Webhook Gönder
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: "V.O.M Yönetim",
+                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
+                        embeds: [{
+                            title: "Başvuru Sonucu",
+                            description: discordMsg,
+                            color: colorCode,
+                            footer: { text: "Yönetim Paneli İşlemi" },
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+
+                alert("İşlem Başarılı: " + (isApproved ? "Onaylandı" : "Reddedildi"));
+
+            } catch (err) {
+                console.error(err);
+                alert("Hata oluştu: " + err.message);
+            }
         };
 
         window.openPermModal = (u) => { document.getElementById('modal-username').innerText = u; document.getElementById('modal-perm').style.display = 'flex'; };

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visconti Operations Mainframe</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> </head>
+<body class="admin-page">
+
+    <div id="login-screen">
+        <div class="login-box">
+            <img src="Visconti.jpg" width="100" style="border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 20px;">
+            <h2 style="color: var(--gold);">V.O.M ACCESS</h2>
+            <p style="margin-bottom: 20px; font-size: 0.8rem; color: #666;">Visconti Operations Mainframe</p>
+            <input type="email" id="email" class="login-input" placeholder="Sistem Kimliği (@visconti.family)">
+            <input type="password" id="password" class="login-input" placeholder="Erişim Şifresi">
+            <button class="btn-enter" id="btnLogin">BAĞLANTI KUR</button>
+            <p id="loginMsg" style="color: var(--red); margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <div id="main-interface">
+        <div class="top-bar">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i> <span id="display-name">Yükleniyor...</span> 
+                <span style="color: #555;">|</span> 
+                <span id="display-rank" style="color: var(--gold);">...</span>
+            </div>
+            <button class="btn-logout" id="btnLogout">BAĞLANTIYI KES</button>
+        </div>
+
+        <div class="workspace">
+            <div class="sidebar">
+                <button class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</button>
+                
+                <button class="module-btn restricted role-admin" onclick="showModule('admin-panel')"><i class="fas fa-user-cog"></i> Personel & Yetki</button>
+
+                <button class="module-btn restricted role-finance" onclick="showModule('finance')"><i class="fas fa-coins"></i> Kasa & Finans</button>
+                <button class="module-btn restricted role-strategy" onclick="showModule('strategy')"><i class="fas fa-chess"></i> Strateji & Harita</button>
+                <button class="module-btn restricted role-intel" onclick="showModule('intel')"><i class="fas fa-user-secret"></i> İstihbarat (Intel)</button>
+                <button class="module-btn restricted role-hitman" onclick="showModule('hitlist')"><i class="fas fa-crosshairs"></i> İnfaz Listesi</button>
+                <button class="module-btn restricted role-law" onclick="showModule('blacklist')"><i class="fas fa-gavel"></i> Kara Liste</button>
+                <button class="module-btn restricted role-diplo" onclick="showModule('diplomacy')"><i class="fas fa-handshake"></i> Diplomasi</button>
+            </div>
+
+            <div class="content-area">
+                
+                <div id="mod-dashboard" class="module-view active">
+                    <h2>Visconti Duyuru Panosu</h2>
+                    <div id="announcements" style="margin-top: 20px; font-family: 'Share Tech Mono', monospace;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--gold); margin-bottom: 10px;">
+                            <strong style="color: var(--gold);">SİSTEM:</strong> V.O.M. Sistemine hoş geldin. Sol menüden yetkin dahilindeki modülleri kullanabilirsin.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mod-admin-panel" class="module-view">
+                    <h2 style="color: #3498db;">Personel Yönetimi</h2>
+                    <p style="margin-bottom: 20px;">Sistemdeki kullanıcıların özel yetkilerini yapılandır.</p>
+                    
+                    <div style="display: flex; gap: 10px; max-width: 500px;">
+                        <input type="text" id="target-user-name" class="input-dark" placeholder="Kullanıcı Adı Giriniz...">
+                        <button class="btn-action btn-green" onclick="window.openPermModal()">YAPILANDIR</button>
+                    </div>
+                </div>
+
+                <div id="mod-finance" class="module-view">
+                    <h2 style="color: #f1c40f;">Hazine Yönetimi</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="fin-desc" class="input-dark" placeholder="İşlem Açıklaması (Örn: Haftalık Haraç)">
+                        <input type="number" id="fin-amount" class="input-dark" placeholder="Miktar ($)">
+                        <select id="fin-type" class="input-dark">
+                            <option value="GELİR">GELİR (+)</option>
+                            <option value="GİDER">GİDER (-)</option>
+                        </select>
+                        <button class="btn-action btn-green" onclick="window.addFinanceLog()">KAYDET</button>
+                    </div>
+                    <div id="finance-list">Yükleniyor...</div>
+                </div>
+
+                <div id="mod-strategy" class="module-view">
+                    <h2 style="color: #9b59b6;">Operasyonel Planlar</h2>
+                    <textarea id="strat-note" class="input-dark" rows="5" placeholder="Yeni stratejik not gir..."></textarea>
+                    <button class="btn-action btn-green" onclick="window.addStrategyNote()">YAYINLA</button>
+                    <div id="strategy-list" style="margin-top: 20px;"></div>
+                </div>
+
+                <div id="mod-intel" class="module-view">
+                    <h2 style="color: #1abc9c;">Deep Web & İstihbarat</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h3>Veri Girişi</h3>
+                            <input type="text" id="intel-target" class="input-dark" placeholder="Hedef Kişi/Oluşum">
+                            <textarea id="intel-info" class="input-dark" rows="4" placeholder="Toplanan Bilgi..."></textarea>
+                            <button class="btn-action btn-green" onclick="window.addIntel()">VERİTABANINA İŞLE</button>
+                        </div>
+                        <div id="intel-feed" style="background: rgba(0,0,0,0.3); padding: 10px; height: 300px; overflow-y: auto;">
+                            </div>
+                    </div>
+                </div>
+
+                <div id="mod-hitlist" class="module-view">
+                    <h2 style="color: #c0392b;">Aktif Kontratlar</h2>
+                    <div style="margin-bottom: 20px;">
+                        <input type="text" id="hit-target" class="input-dark" placeholder="Hedef İsim">
+                        <select id="hit-prio" class="input-dark">
+                            <option value="DÜŞÜK">Düşük Öncelik</option>
+                            <option value="YÜKSEK">Yüksek Öncelik</option>
+                            <option value="ACİL">ACİL İNFAZ</option>
+                        </select>
+                        <button class="btn-action btn-red" onclick="window.addHit()">LİSTEYE EKLE</button>
+                    </div>
+                    <div id="hit-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"></div>
+                </div>
+                
+                <div id="mod-blacklist" class="module-view">
+                    <h2 style="color: #95a5a6;">Blacklist & Cezalar</h2>
+                    <input type="text" id="bl-name" class="input-dark" placeholder="Kişi Adı">
+                    <input type="text" id="bl-reason" class="input-dark" placeholder="Suçu / Sebep">
+                    <button class="btn-action btn-red" onclick="window.addBlacklist()">SİCİLE İŞLE</button>
+                    <ul id="blacklist-ul" style="margin-top: 20px; list-style: none;"></ul>
+                </div>
+
+                <div id="mod-diplomacy" class="module-view">
+                    <h2 style="color: #e67e22;">Dış İlişkiler</h2>
+                    <div id="diplo-status" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        </div>
+                    <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
+                        <h3>İlişki Güncelle</h3>
+                        <input type="text" id="dip-gang" class="input-dark" placeholder="Çete/Aile Adı">
+                        <select id="dip-status" class="input-dark">
+                            <option value="Dost">Dost 🟢</option>
+                            <option value="Nötr">Nötr ⚪</option>
+                            <option value="Düşman">Düşman 🔴</option>
+                        </select>
+                        <button class="btn-action btn-green" onclick="window.updateDiplo()">GÜNCELLE</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="perm-modal-overlay">
+        <div class="perm-card">
+            <div class="perm-header">
+                <h3><i class="fas fa-user-shield"></i> Özel Yetki Yapılandırması</h3>
+                <i class="fas fa-times close-modal" onclick="document.getElementById('perm-modal-overlay').style.display='none'"></i>
+            </div>
+            
+            <div class="perm-user">Kullanıcı: <span id="perm-modal-username" style="font-weight:bold; color:#fff;">--</span></div>
+
+            <div class="perm-list">
+                <div class="perm-item">
+                    <input type="checkbox" id="p_app">
+                    <div>
+                        <strong>Başvuru Yönetimi</strong>
+                        <span class="perm-desc">Başvuruları onaylayabilir/reddedebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_gun">
+                    <div>
+                        <strong>Silah Ruhsatı Verme</strong>
+                        <span class="perm-desc">Yeni ruhsat tanımlayabilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_penal">
+                    <div>
+                        <strong>Ceza Yazma Yetkisi</strong>
+                        <span class="perm-desc">Ceza kesebilir ve sisteme işleyebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_staff">
+                    <div>
+                        <strong>Personel Yönetimi</strong>
+                        <span class="perm-desc">Personel ekleyebilir ve rütbe düzenleyebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_fire">
+                    <div>
+                        <strong class="text-red"><i class="fas fa-user-times"></i> Personel Kovma Yetkisi</strong>
+                        <span class="perm-desc">Personeli sistemden kalıcı olarak SİLEBİLİR.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_perm">
+                    <div>
+                        <strong class="text-purple"><i class="fas fa-key"></i> Yetki Yönetimi</strong>
+                        <span class="perm-desc">Personel listesindeki mor 'YETKİ' butonunu görebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_blacklist">
+                    <div>
+                        <strong>Kara Liste Yönetimi</strong>
+                        <span class="perm-desc">Kişileri banlayabilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_ohal">
+                    <div>
+                        <strong>OHAL Yetkisi</strong>
+                        <span class="perm-desc">OHAL durumunu değiştirebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_delete">
+                    <div>
+                        <strong>Kayıt Silme</strong>
+                        <span class="perm-desc">Ruhsat veya sabıka silebilir.</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-update-perms" onclick="window.savePermissions()">YETKİLERİ GÜNCELLE</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
+            authDomain: "veltora.firebaseapp.com",
+            databaseURL: "https://veltora-default-rtdb.firebaseio.com",
+            projectId: "veltora",
+            storageBucket: "veltora.firebasestorage.app",
+            messagingSenderId: "62609466462",
+            appId: "1:62609466462:web:5813c33c88df4f212600cf",
+            measurementId: "G-PQBJN0MLXR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
+        const PERMISSIONS = {
+            'THE SHROUD': ['finance', 'strategy', 'intel', 'hitlist', 'blacklist', 'diplomacy', 'admin'],
+            'THE DIAMOND': ['finance', 'diplomacy'],
+            'THE PRINCESS': ['strategy', 'finance', 'diplomacy'],
+            'THE ARCHITECT': ['strategy', 'diplomacy'],
+            'OVERSEER': ['blacklist', 'intel'],
+            'GRAVEDIGGER': ['hitlist', 'blacklist'],
+            'CLEANER': ['hitlist'],
+            'WRAITH': ['intel', 'hitlist'],
+            'ORACLE': ['intel', 'diplomacy'],
+            'HARBINGER': ['diplomacy'],
+            'BLOODLINE': ['diplomacy'], 
+        };
+
+        let currentUserRank = "";
+        let currentUserName = "";
+
+        // AUTH STATE
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-interface').style.display = 'flex'; 
+                await identifyUser(user.email);
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('main-interface').style.display = 'none';
+            }
+        });
+
+        document.getElementById('btnLogin').addEventListener('click', () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, e, p).catch(err => document.getElementById('loginMsg').innerText = "Hata: " + err.message);
+        });
+        document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+
+        async function identifyUser(email) {
+            // BOSS GİRİŞ KONTROLÜ
+            if(email === "baron@visconti.family") {
+                currentUserRank = "THE SHROUD";
+                currentUserName = "Kadir Baba"; 
+                
+                document.getElementById('display-name').innerText = currentUserName.toUpperCase();
+                document.getElementById('display-rank').innerText = currentUserRank;
+
+                applyPermissions(currentUserRank);
+                loadAllModules();
+                return; 
+            }
+
+            // NORMAL KULLANICI KONTROLÜ
+            const q = query(collection(db, "basvurular"), where("systemEmail", "==", email));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const data = querySnapshot.docs[0].data();
+                currentUserRank = data.rank || "Visconti Aile Üyesi";
+                currentUserName = data.icName;
+                
+                document.getElementById('display-name').innerText = currentUserName.toUpperCase();
+                document.getElementById('display-rank').innerText = currentUserRank;
+
+                applyPermissions(currentUserRank);
+                loadAllModules(); 
+            } else {
+                alert("Sistemde kaydınız bulunamadı.");
+                signOut(auth);
+            }
+        }
+
+        function applyPermissions(rank) {
+            // Eğer THE SHROUD ise hepsini aç
+            if (rank === 'THE SHROUD') {
+                document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('restricted'));
+                return;
+            }
+
+            const allowedModules = PERMISSIONS[rank] || [];
+            
+            allowedModules.forEach(mod => {
+                let selector = "";
+                if(mod === 'finance') selector = '.role-finance';
+                if(mod === 'strategy') selector = '.role-strategy';
+                if(mod === 'intel') selector = '.role-intel';
+                if(mod === 'hitlist') selector = '.role-hitman';
+                if(mod === 'blacklist') selector = '.role-law';
+                if(mod === 'diplomacy') selector = '.role-diplo';
+                if(mod === 'admin') selector = '.role-admin';
+
+                // Seçilen elementlerden restricted class'ını kaldır
+                document.querySelectorAll(selector).forEach(el => el.classList.remove('restricted'));
+            });
+        }
+
+        window.showModule = (modId) => {
+            document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.module-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`mod-${modId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        };
+
+        // --- ÖZEL YETKİ (BOSS) ---
+        window.openPermModal = () => {
+            const targetName = document.getElementById('target-user-name').value;
+            if(!targetName) { alert("Lütfen bir kullanıcı adı girin."); return; }
+            
+            document.getElementById('perm-modal-username').innerText = targetName;
+            document.getElementById('perm-modal-overlay').style.display = 'flex';
+            document.querySelectorAll('.perm-item input').forEach(i => i.checked = false);
+        };
+
+        window.savePermissions = async () => {
+            const targetUser = document.getElementById('perm-modal-username').innerText;
+            const perms = {
+                app_management: document.getElementById('p_app').checked,
+                gun_license: document.getElementById('p_gun').checked,
+                penal_code: document.getElementById('p_penal').checked,
+                staff_manage: document.getElementById('p_staff').checked,
+                staff_fire: document.getElementById('p_fire').checked,
+                perm_manage: document.getElementById('p_perm').checked,
+                blacklist: document.getElementById('p_blacklist').checked,
+                ohal: document.getElementById('p_ohal').checked,
+                delete_record: document.getElementById('p_delete').checked,
+                updatedBy: currentUserName,
+                updatedAt: serverTimestamp()
+            };
+
+            await setDoc(doc(db, "vom_permissions", targetUser), perms);
+            alert(`${targetUser} kullanıcısının yetkileri güncellendi!`);
+            document.getElementById('perm-modal-overlay').style.display = 'none';
+        };
+
+        // --- DİĞER FONKSİYONLAR ---
+        window.addFinanceLog = async () => {
+            const desc = document.getElementById('fin-desc').value;
+            const amount = document.getElementById('fin-amount').value;
+            const type = document.getElementById('fin-type').value;
+            if(!desc || !amount) return;
+            await addDoc(collection(db, "vom_finance"), { desc, amount, type, user: currentUserName, date: serverTimestamp() });
+            alert("İşlendi.");
+        };
+        
+        window.addStrategyNote = async () => {
+            const note = document.getElementById('strat-note').value;
+            if(!note) return;
+            await addDoc(collection(db, "vom_strategy"), { note, user: currentUserName, date: serverTimestamp() });
+            document.getElementById('strat-note').value = "";
+        };
+
+        window.addIntel = async () => {
+            const target = document.getElementById('intel-target').value;
+            const info = document.getElementById('intel-info').value;
+            if(!target) return;
+            await addDoc(collection(db, "vom_intel"), { target, info, user: currentUserName, date: serverTimestamp() });
+            alert("İstihbarat girildi.");
+        };
+
+        window.addHit = async () => {
+            const target = document.getElementById('hit-target').value;
+            const prio = document.getElementById('hit-prio').value;
+            await addDoc(collection(db, "vom_hits"), { target, prio, status: 'Active', user: currentUserName, date: serverTimestamp() });
+            alert("Hedef işaretlendi.");
+        };
+
+        window.completeHit = async (id) => {
+            if(confirm("Onaylıyor musun?")) {
+                await updateDoc(doc(db, "vom_hits", id), { status: 'Eliminated' });
+            }
+        };
+
+        window.addBlacklist = async () => {
+            const name = document.getElementById('bl-name').value;
+            const reason = document.getElementById('bl-reason').value;
+            await addDoc(collection(db, "vom_blacklist"), { name, reason, user: currentUserName, date: serverTimestamp() });
+            alert("Eklendi.");
+        };
+
+        window.updateDiplo = async () => {
+            const gang = document.getElementById('dip-gang').value;
+            const status = document.getElementById('dip-status').value;
+            await addDoc(collection(db, "vom_diplomacy"), { gang, status, user: currentUserName, date: serverTimestamp() });
+            alert("Güncellendi.");
+        };
+
+        function loadAllModules() {
+            onSnapshot(query(collection(db, "vom_finance"), orderBy("date", "desc")), (snap) => {
+                let html = '<table class="log-table"><tr><th>TÜR</th><th>MİKTAR</th><th>AÇIKLAMA</th><th>KİM</th></tr>';
+                snap.forEach(d => {
+                    const data = d.data();
+                    const color = data.type === 'GELİR' ? '#2ecc71' : '#e74c3c';
+                    html += `<tr><td style="color:${color}">${data.type}</td><td>${data.amount}$</td><td>${data.desc}</td><td>${data.user}</td></tr>`;
+                });
+                html += '</table>';
+                document.getElementById('finance-list').innerHTML = html;
+            });
+
+            onSnapshot(query(collection(db, "vom_strategy"), orderBy("date", "desc")), (snap) => {
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div style="background:#111; padding:10px; border-left:2px solid var(--gold); margin-bottom:10px;"><small style="color:#666">${data.user}</small><p>${data.note}</p></div>`;
+                });
+                document.getElementById('strategy-list').innerHTML = html;
+            });
+
+            onSnapshot(query(collection(db, "vom_intel"), orderBy("date", "desc")), (snap) => {
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div style="border-bottom:1px solid #333; padding:5px;"><strong style="color:var(--tech)">${data.target}</strong>: ${data.info}</div>`;
+                });
+                document.getElementById('intel-feed').innerHTML = html;
+            });
+
+            onSnapshot(query(collection(db, "vom_hits"), orderBy("date", "desc")), (snap) => {
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    const id = d.id;
+                    const isDead = data.status === 'Eliminated';
+                    const style = isDead ? 'opacity:0.5; text-decoration:line-through;' : '';
+                    const btn = isDead ? '' : `<button onclick="window.completeHit('${id}')" style="background:var(--red); border:none; color:#fff; cursor:pointer;">X</button>`;
+                    html += `<div style="background:#1a1a1a; padding:15px; border:1px solid #333; ${style}"><h3 style="color:var(--red)">${data.target}</h3><p>${data.prio}</p>${btn}</div>`;
+                });
+                document.getElementById('hit-grid').innerHTML = html;
+            });
+            
+            onSnapshot(query(collection(db, "vom_diplomacy"), orderBy("date", "desc")), (snap) => {
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    let color = '#fff';
+                    if(data.status === 'Dost') color = '#2ecc71';
+                    if(data.status === 'Düşman') color = '#e74c3c';
+                    html += `<div style="background:#111; padding:10px 20px; border:1px solid ${color}; color:${color}; border-radius:4px;">${data.gang}: ${data.status}</div>`;
+                });
+                document.getElementById('diplo-status').innerHTML = html;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+/* --- GENEL AYARLAR VE FONTLAR --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap');
+
+:root { 
+    /* Ortak Renkler */
+    --gold: #cfb53b; 
+    --red: #8a2020; 
+    --green: #1a4a25; 
+    --blue: #1e3a5f; 
+    --tech: #00ffcc;
+    --purple: #9b59b6;
+    --text-color: #a0a0a0;
+    
+    /* Arka Planlar */
+    --bg-admin: #050505;
+    --bg-index: #0f1014;
+    --card-bg: #101014;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    overflow-x: hidden; 
+}
+
+/* --- ADMIN PANELİNE ÖZEL STİLLER (body.admin-page) --- */
+body.admin-page {
+    background-color: var(--bg-admin); 
+    color: var(--text-color);
+}
+
+/* Login Ekranı */
+#login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.login-box { text-align: center; border: 1px solid var(--gold); padding: 40px; border-radius: 10px; background: rgba(20,20,20,0.9); box-shadow: 0 0 30px rgba(207, 181, 59, 0.2); }
+.login-input { display: block; width: 300px; padding: 12px; margin: 10px auto; background: #000; border: 1px solid #333; color: var(--gold); font-family: 'Share Tech Mono', monospace; text-align: center; }
+.btn-enter { padding: 10px 30px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; font-family: 'Cinzel', serif; margin-top: 10px; }
+
+/* Ana Arayüz */
+#main-interface { display: none; height: 100vh; flex-direction: column; } /* JS display:flex yapıyor */
+.top-bar { height: 60px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: rgba(0,0,0,0.8); }
+.user-info { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
+.btn-logout { background: transparent; border: 1px solid #444; color: #fff; padding: 5px 15px; cursor: pointer; }
+
+/* Sidebar ve İçerik */
+.workspace { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 250px; background: #0a0a0a; border-right: 1px solid #333; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.module-btn { 
+    background: transparent; border: 1px solid #333; color: #666; padding: 15px; text-align: left; 
+    cursor: pointer; transition: 0.3s; font-family: 'Cinzel', serif; display: flex; align-items: center; gap: 10px;
+}
+.module-btn:hover { border-color: var(--gold); color: #fff; }
+.module-btn.active { background: rgba(207, 181, 59, 0.1); border-color: var(--gold); color: var(--gold); }
+.module-btn i { width: 20px; text-align: center; }
+
+/* Rütbeye Göre Gizleme (JS ile kaldırılır) */
+.restricted { display: none; }
+
+.content-area { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at center, #111 0%, #000 100%); position: relative; }
+.module-view { display: none; animation: fadeIn 0.5s; }
+.module-view.active { display: block; }
+h2 { font-family: 'Cinzel', serif; color: #fff; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px; display: inline-block; }
+
+/* Tablolar ve Formlar (Admin) */
+.log-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; }
+.log-table th, .log-table td { border: 1px solid #333; padding: 10px; text-align: left; }
+.log-table th { color: var(--gold); }
+.input-dark { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff; padding: 8px; width: 100%; margin-bottom: 10px; }
+.btn-action { padding: 8px 15px; border: none; cursor: pointer; font-weight: bold; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-red { background: var(--red); color: #fff; }
+
+/* Özel Yetki Modalı */
+#perm-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 2000;
+    display: none; justify-content: center; align-items: center;
+}
+.perm-card {
+    background: #1a1e24; border: 1px solid #2c3e50;
+    width: 500px; border-radius: 8px; padding: 20px;
+    font-family: 'Inter', sans-serif; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+.perm-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px;
+}
+.perm-header h3 { color: #fff; font-size: 1.1rem; }
+.perm-user { color: #3498db; margin-bottom: 15px; font-size: 0.95rem; }
+.perm-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+.perm-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: #bdc3c7; }
+.perm-item input[type="checkbox"] { margin-top: 4px; accent-color: #3498db; transform: scale(1.2); }
+.perm-desc { display: block; font-size: 0.8rem; color: #7f8c8d; margin-top: 2px; }
+.text-red { color: #e74c3c !important; }
+.text-purple { color: #9b59b6 !important; }
+.btn-update-perms {
+    width: 100%; background: #00b894; color: #fff; border: none; padding: 12px;
+    margin-top: 20px; border-radius: 4px; font-weight: bold; cursor: pointer;
+    transition: 0.2s;
+}
+.btn-update-perms:hover { background: #00a382; }
+.close-modal { cursor: pointer; color: #fff; }
+
+/* --- INDEX (BAŞVURU) SAYFASINA ÖZEL STİLLER (body.index-page) --- */
+body.index-page {
+    background-color: var(--bg-index); 
+    color: #c4c4c4; 
+    line-height: 1.6; 
+    position: relative;
+}
+
+body.index-page h1, 
+body.index-page h2, 
+body.index-page h3 { font-family: 'Cinzel', serif; color: #fff; }
+
+/* Arka Plan Efekti */
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 20%, rgba(207, 181, 59, 0.08), transparent 70%); z-index: -1; pointer-events: none; }
+
+/* Header & Logo */
+header { 
+    padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.crest-logo {
+    width: 200px; height: 200px; object-fit: cover; margin-bottom: 20px;
+    border-radius: 50%; border: 2px solid var(--gold); 
+    box-shadow: 0 0 25px rgba(207, 181, 59, 0.3); 
+    animation: float 6s ease-in-out infinite; 
+}
+.logo-text { font-size: 3rem; text-transform: uppercase; color: var(--gold); text-shadow: 0 0 15px rgba(207, 181, 59, 0.3); letter-spacing: 2px; }
+
+/* Gizli Admin Butonu */
+.secret-admin-btn {
+    position: absolute; top: 20px; right: 20px;
+    color: rgba(255, 255, 255, 0.05); font-size: 1.2rem; text-decoration: none; transition: all 0.5s ease; z-index: 999; padding: 10px;
+}
+.secret-admin-btn:hover { color: var(--gold); transform: rotate(45deg) scale(1.2); text-shadow: 0 0 10px var(--gold); }
+
+/* Müzik Kontrol */
+.music-control {
+    position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+    background: rgba(0,0,0,0.8); border: 1px solid var(--gold); color: var(--gold);
+    padding: 12px 18px; border-radius: 50px; cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; gap: 10px; box-shadow: 0 0 15px rgba(207, 181, 59, 0.2);
+}
+.music-control:hover { background: var(--gold); color: #000; box-shadow: 0 0 25px rgba(207, 181, 59, 0.6); }
+.music-equalizer { display: flex; gap: 3px; height: 15px; align-items: flex-end; }
+.bar { width: 3px; background-color: currentColor; animation: equalizer 1s infinite ease-in-out; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.4s; }
+.paused .bar { animation: none; height: 3px; }
+
+/* Form Alanı */
+.container { max-width: 900px; margin: 0 auto; padding: 50px 20px; }
+section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+
+.form-group { margin-bottom: 20px; position: relative; z-index: 2; }
+.row { display: flex; gap: 20px; }
+.col { flex: 1; }
+
+label { display: block; margin-bottom: 8px; font-weight: 600; color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; }
+input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 6px; color: #fff; font-family: 'Inter', sans-serif; transition: 0.3s; }
+input:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 15px rgba(207, 181, 59, 0.15); background: rgba(0,0,0,0.5); }
+
+/* Scrollable Soru Alanı */
+.questions-scroll-container {
+    max-height: 500px; overflow-y: auto; padding: 20px;
+    background: rgba(0,0,0,0.2); border: 1px solid #333; border-radius: 8px; margin-bottom: 20px;
+}
+.questions-scroll-container::-webkit-scrollbar { width: 8px; }
+.questions-scroll-container::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 4px; }
+.questions-scroll-container::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+.question-item { margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
+.question-item:last-child { border-bottom: none; }
+.q-title { color: var(--gold); font-size: 0.95rem; margin-bottom: 10px; font-weight: bold; }
+.q-desc { font-size: 0.8rem; color: #888; margin-bottom: 10px; font-style: italic; }
+
+.btn-submit { width: 100%; padding: 18px; background: linear-gradient(45deg, #8a7620, var(--gold)); border: none; color: #000; font-weight: 800; font-family: 'Cinzel', serif; cursor: pointer; border-radius: 6px; transition: 0.4s; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+.btn-submit:hover { filter: brightness(1.2); box-shadow: 0 0 20px rgba(207, 181, 59, 0.4); }
+
+@media (max-width: 768px) {
+    .logo-text { font-size: 2rem; }
+    .crest-logo { width: 150px; height: 150px; }
+    .music-control { padding: 10px; bottom: 20px; left: 20px; }
+    .music-label { display: none; }
+    .row { flex-direction: column; gap: 0; }
+}
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes equalizer { 0% { height: 3px; } 50% { height: 15px; } 100% { height: 3px; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

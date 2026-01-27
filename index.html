@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visconti Ailesi | Başvuru</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> </head>
+<body class="index-page">
+
+    <audio id="bgMusic" loop>
+        <source src="visconti.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-control paused" id="musicBtn" title="Müziği Aç/Kapat">
+        <div class="music-equalizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <span class="music-label" style="font-family: 'Cinzel', serif; font-size: 0.85rem;">SES</span>
+    </div>
+
+    <a href="admin.html" class="secret-admin-btn" title="Baron Girişi"><i class="fas fa-key"></i></a>
+
+    <div class="bg-overlay"></div>
+
+    <header>
+        <img src="Visconti.jpg" alt="Visconti Hanedan Arması" class="crest-logo">
+        <div class="logo-text">Visconti Ailesi</div>
+        <p style="color: #888; margin-top: 5px; font-size: 0.9rem; letter-spacing: 3px;">"GÜÇ. SADAKAT. ONUR."</p>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2 style="margin-bottom: 25px; color: var(--gold); text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                <i class="fas fa-scroll"></i> Resmi Başvuru Kaydı
+            </h2>
+            <form id="viscontiForm">
+                
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Discord Kimliği</label>
+                        <input type="text" id="discord_id" required placeholder="örn: kullanıcı#1234">
+                    </div>
+                    <div class="col form-group">
+                        <label>IC Ad Soyad</label>
+                        <input type="text" id="ic_name" required placeholder="Karakter Adı">
+                    </div>
+                    <div class="col form-group">
+                        <label>Karakter Yaşı</label>
+                        <input type="number" id="ic_age" required placeholder="18+">
+                    </div>
+                </div>
+
+                <label style="margin-top: 10px; color: var(--gold);">Mülakat & Rol Bilgisi</label>
+                <div class="questions-scroll-container">
+                    
+                    <div class="question-item">
+                        <div class="q-title">1. Powergaming & Bunny Hopping Nedir?</div>
+                        <div class="q-desc">Kısaca açıklayın ve birer örnek verin.</div>
+                        <textarea id="q1" rows="2" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">2. Meta Gaming & Mixing Nedir?</div>
+                        <div class="q-desc">Rol içi (IC) ve Rol dışı (OOC) ayrımını nasıl yaparsınız?</div>
+                        <textarea id="q2" rows="2" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">3. FearRP (Korku Rolü)</div>
+                        <div class="q-desc">Silahsızsınız ve 3 kişi üzerinize silah doğrulttu. Tepkiniz ne olur?</div>
+                        <textarea id="q3" rows="2" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">4. Baron Mantalitesi: Hiyerarşi</div>
+                        <div class="q-desc">Üst rütbenizden biri (Baron/Underboss) size mantıksız gelen veya kişisel olarak onaylamadığınız bir emir verdi. Tavrınız ne olur?</div>
+                        <textarea id="q4" rows="3" required placeholder="İtaat mi sorgulama mı? Açıklayın..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">5. Senaryo: İhanet</div>
+                        <div class="q-desc">Aileden birinin rakip çeteyle gizlice bilgi paylaştığını gördünüz. Ancak bu kişi sizin en yakın dostunuz. Ne yaparsınız?</div>
+                        <textarea id="q5" rows="3" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">6. Senaryo: Ticaret ve Racon</div>
+                        <div class="q-desc">Bir silah sevkiyatı sırasında alıcı size hakaret etti ve parayı eksik verdi. Masayı devirir misiniz yoksa politik mi davranırsınız?</div>
+                        <textarea id="q6" rows="3" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">7. Senaryo: Polis Sorgusu</div>
+                        <div class="q-desc">Polis tarafından yakalandınız ve ailenin depo konumu karşılığında serbest bırakılacağınız söylendi. Tepkiniz?</div>
+                        <textarea id="q7" rows="2" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">8. Omerta (Sessizlik Yasası)</div>
+                        <div class="q-desc">Visconti ailesi için 'Sessizlik' ve 'Sadakat' ne ifade eder?</div>
+                        <textarea id="q8" rows="2" required placeholder="Cevabınız..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">9. Karakter Hikayesi (Kısa)</div>
+                        <div class="q-desc">Karakterinizin geçmişi, neden bu şehre geldiği ve hedefleri.</div>
+                        <textarea id="q9" rows="4" required placeholder="Hikayeniz..."></textarea>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="q-title">10. OOC Aktiflik Süreniz</div>
+                        <div class="q-desc">Günde kaç saat aktif rol yapabilirsiniz?</div>
+                        <input type="text" id="q10" required placeholder="örn: 4-6 saat">
+                    </div>
+
+                </div>
+                <button type="submit" class="btn-submit" id="submitBtn">Mühürle ve Gönder</button>
+            </form>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // MÜZİK KONTROL
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let isPlaying = false;
+        bgMusic.volume = 0.4;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicBtn.classList.add('paused');
+                musicBtn.innerHTML = '<div class="music-equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="music-label" style="font-family: \'Cinzel\', serif;">DURDU</span>';
+            } else {
+                bgMusic.play().then(() => {
+                    musicBtn.classList.remove('paused');
+                    musicBtn.innerHTML = '<div class="music-equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="music-label" style="font-family: \'Cinzel\', serif;">ÇALIYOR</span>';
+                }).catch(e => console.log("Otomatik oynatma engellendi."));
+            }
+            isPlaying = !isPlaying;
+        }
+
+        document.body.addEventListener('click', function() { if (!isPlaying) toggleMusic(); }, { once: true });
+        musicBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMusic(); });
+
+        // FIREBASE İŞLEMLERİ
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
+            authDomain: "veltora.firebaseapp.com",
+            databaseURL: "https://veltora-default-rtdb.firebaseio.com",
+            projectId: "veltora",
+            storageBucket: "veltora.firebasestorage.app",
+            messagingSenderId: "62609466462",
+            appId: "1:62609466462:web:5813c33c88df4f212600cf",
+            measurementId: "G-PQBJN0MLXR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+
+        document.getElementById('viscontiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const discordId = document.getElementById('discord_id').value;
+            const icName = document.getElementById('ic_name').value;
+            const icAge = document.getElementById('ic_age').value;
+            
+            let fullStory = "";
+            fullStory += `**1. PG & Bunny:** ${document.getElementById('q1').value}\n`;
+            fullStory += `**2. Meta & Mixing:** ${document.getElementById('q2').value}\n`;
+            fullStory += `**3. FearRP:** ${document.getElementById('q3').value}\n`;
+            fullStory += `**4. Hiyerarşi:** ${document.getElementById('q4').value}\n`;
+            fullStory += `**5. İhanet Senaryosu:** ${document.getElementById('q5').value}\n`;
+            fullStory += `**6. Ticaret Raconu:** ${document.getElementById('q6').value}\n`;
+            fullStory += `**7. Polis Sorgusu:** ${document.getElementById('q7').value}\n`;
+            fullStory += `**8. Omerta:** ${document.getElementById('q8').value}\n`;
+            fullStory += `**9. Karakter Hikayesi:** ${document.getElementById('q9').value}\n`;
+            fullStory += `**10. Aktiflik:** ${document.getElementById('q10').value}`;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
+            btn.disabled = true;
+
+            try {
+                const firebasePromise = addDoc(collection(db, "basvurular"), {
+                    discord: discordId, icName: icName, icAge: icAge, story: fullStory,
+                    tarih: serverTimestamp(), durum: "Beklemede"
+                });
+
+                const discordPromise = fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: "Visconti Hanedanı", 
+                        avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
+                        content: `📢 **Yeni Başvuru Bildirimi!**\n<@&1464989769762078934> yetkili bekleniyor.\nBaşvuru Sahibi: <@${discordId}>`, 
+                        embeds: [{
+                            title: "⚔️ Detaylı Başvuru Formu", 
+                            description: `**${icName}** aileye katılmak istiyor.`, 
+                            color: 13612347,
+                            fields: [
+                                { name: "Discord", value: discordId, inline: true }, 
+                                { name: "Karakter", value: icName, inline: true }, 
+                                { name: "Yaş", value: icAge, inline: true }, 
+                                { name: "Mülakat & Hikaye", value: fullStory.substring(0, 1024) } 
+                            ],
+                            footer: { text: "Visconti Family System" }, timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+
+                await Promise.all([firebasePromise, discordPromise]);
+                alert("Başvurunuz Visconti Konseyine sunuldu.");
+                document.getElementById('viscontiForm').reset();
+            } catch (error) {
+                console.error(error);
+                alert("Bağlantı hatası.");
+            } finally {
+                btn.innerHTML = 'Mühürle ve Gönder';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

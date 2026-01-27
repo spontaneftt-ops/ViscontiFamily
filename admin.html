@@ -10,6 +10,7 @@
         :root { 
             --bg-color: #050505; --card-bg: #101014; --text-color: #a0a0a0; 
             --gold: #cfb53b; --red: #8a2020; --green: #1a4a25; --blue: #1e3a5f; --tech: #00ffcc;
+            --purple: #9b59b6; /* Image'daki mor renk için */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -55,6 +56,37 @@
         .btn-action { padding: 8px 15px; border: none; cursor: pointer; font-weight: bold; }
         .btn-green { background: var(--green); color: #fff; }
         .btn-red { background: var(--red); color: #fff; }
+        
+        /* YENİ EKLENEN ÖZEL YETKİ MODALI STİLLERİ (FOTOĞRAFA GÖRE) */
+        #perm-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .perm-card {
+            background: #1a1e24; border: 1px solid #2c3e50;
+            width: 500px; border-radius: 8px; padding: 20px;
+            font-family: 'Inter', sans-serif; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        .perm-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .perm-header h3 { color: #fff; font-size: 1.1rem; }
+        .perm-user { color: #3498db; margin-bottom: 15px; font-size: 0.95rem; }
+        .perm-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .perm-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: #bdc3c7; }
+        .perm-item input[type="checkbox"] { margin-top: 4px; accent-color: #3498db; transform: scale(1.2); }
+        .perm-desc { display: block; font-size: 0.8rem; color: #7f8c8d; margin-top: 2px; }
+        .text-red { color: #e74c3c !important; }
+        .text-purple { color: #9b59b6 !important; }
+        .btn-update-perms {
+            width: 100%; background: #00b894; color: #fff; border: none; padding: 12px;
+            margin-top: 20px; border-radius: 4px; font-weight: bold; cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-update-perms:hover { background: #00a382; }
+        .close-modal { cursor: pointer; color: #fff; }
 
         /* Rütbeye Göre Gizleme */
         .restricted { display: none !important; }
@@ -90,6 +122,8 @@
             <div class="sidebar">
                 <button class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</button>
                 
+                <button class="module-btn restricted role-admin" onclick="showModule('admin-panel')"><i class="fas fa-user-cog"></i> Personel & Yetki</button>
+
                 <button class="module-btn restricted role-finance" onclick="showModule('finance')"><i class="fas fa-coins"></i> Kasa & Finans</button>
                 <button class="module-btn restricted role-strategy" onclick="showModule('strategy')"><i class="fas fa-chess"></i> Strateji & Harita</button>
                 <button class="module-btn restricted role-intel" onclick="showModule('intel')"><i class="fas fa-user-secret"></i> İstihbarat (Intel)</button>
@@ -106,6 +140,16 @@
                         <div style="background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--gold); margin-bottom: 10px;">
                             <strong style="color: var(--gold);">SİSTEM:</strong> V.O.M. Sistemine hoş geldin. Sol menüden yetkin dahilindeki modülleri kullanabilirsin.
                         </div>
+                    </div>
+                </div>
+
+                <div id="mod-admin-panel" class="module-view">
+                    <h2 style="color: #3498db;">Personel Yönetimi</h2>
+                    <p style="margin-bottom: 20px;">Sistemdeki kullanıcıların özel yetkilerini yapılandır.</p>
+                    
+                    <div style="display: flex; gap: 10px; max-width: 500px;">
+                        <input type="text" id="target-user-name" class="input-dark" placeholder="Kullanıcı Adı Giriniz...">
+                        <button class="btn-action btn-green" onclick="window.openPermModal()">YAPILANDIR</button>
                     </div>
                 </div>
 
@@ -186,9 +230,88 @@
         </div>
     </div>
 
+    <div id="perm-modal-overlay">
+        <div class="perm-card">
+            <div class="perm-header">
+                <h3><i class="fas fa-user-shield"></i> Özel Yetki Yapılandırması</h3>
+                <i class="fas fa-times close-modal" onclick="document.getElementById('perm-modal-overlay').style.display='none'"></i>
+            </div>
+            
+            <div class="perm-user">Kullanıcı: <span id="perm-modal-username" style="font-weight:bold; color:#fff;">--</span></div>
+
+            <div class="perm-list">
+                <div class="perm-item">
+                    <input type="checkbox" id="p_app">
+                    <div>
+                        <strong>Başvuru Yönetimi</strong>
+                        <span class="perm-desc">Başvuruları onaylayabilir/reddedebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_gun">
+                    <div>
+                        <strong>Silah Ruhsatı Verme</strong>
+                        <span class="perm-desc">Yeni ruhsat tanımlayabilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_penal">
+                    <div>
+                        <strong>Ceza Yazma Yetkisi</strong>
+                        <span class="perm-desc">Ceza kesebilir ve sisteme işleyebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_staff">
+                    <div>
+                        <strong>Personel Yönetimi (Ekle/Düzenle)</strong>
+                        <span class="perm-desc">Personel ekleyebilir ve rütbe düzenleyebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_fire">
+                    <div>
+                        <strong class="text-red"><i class="fas fa-user-times"></i> Personel Kovma Yetkisi</strong>
+                        <span class="perm-desc">Personeli sistemden kalıcı olarak SİLEBİLİR.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_perm">
+                    <div>
+                        <strong class="text-purple"><i class="fas fa-key"></i> Yetki Yönetimi (Erişim)</strong>
+                        <span class="perm-desc">Personel listesindeki mor 'YETKİ' butonunu görebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_blacklist">
+                    <div>
+                        <strong>Kara Liste Yönetimi</strong>
+                        <span class="perm-desc">Kişileri banlayabilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_ohal">
+                    <div>
+                        <strong>OHAL Yetkisi</strong>
+                        <span class="perm-desc">OHAL durumunu değiştirebilir.</span>
+                    </div>
+                </div>
+                <div class="perm-item">
+                    <input type="checkbox" id="p_delete">
+                    <div>
+                        <strong>Kayıt Silme</strong>
+                        <span class="perm-desc">Ruhsat veya sabıka silebilir.</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-update-perms" onclick="window.savePermissions()">YETKİLERİ GÜNCELLE</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -209,7 +332,7 @@
 
         // --- ROL YETKİ MATRİSİ ---
         const PERMISSIONS = {
-            'THE SHROUD': ['finance', 'strategy', 'intel', 'hitlist', 'blacklist', 'diplomacy'],
+            'THE SHROUD': ['finance', 'strategy', 'intel', 'hitlist', 'blacklist', 'diplomacy', 'admin'], // Admin eklendi
             'THE DIAMOND': ['finance', 'diplomacy'],
             'THE PRINCESS': ['strategy', 'finance', 'diplomacy'],
             'THE ARCHITECT': ['strategy', 'diplomacy'],
@@ -219,8 +342,7 @@
             'WRAITH': ['intel', 'hitlist'],
             'ORACLE': ['intel', 'diplomacy'],
             'HARBINGER': ['diplomacy'],
-            'BLOODLINE': ['diplomacy'], // Kısıtlı
-            // Diğerleri sadece dashboard görür
+            'BLOODLINE': ['diplomacy'], 
         };
 
         let currentUserRank = "";
@@ -230,7 +352,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-interface').style.display = 'flex'; // Flex yapısı önemli
+                document.getElementById('main-interface').style.display = 'flex'; 
                 
                 // Kullanıcı bilgilerini ve Rütbeyi Çek
                 await identifyUser(user.email);
@@ -249,7 +371,23 @@
 
         // --- KULLANICI TANIMLAMA VE MENÜ AYARLAMA ---
         async function identifyUser(email) {
-            // Basvurular koleksiyonundan systemEmail ile eşleşen kişiyi bul
+            
+            // --- ÖZEL İSTEK: BARON (BOSS) GİRİŞİ ---
+            // Eğer mail baron@visconti.family ise, veritabanına bakmadan BOSS yetkisi ver.
+            if(email === "baron@visconti.family") {
+                currentUserRank = "THE SHROUD";
+                currentUserName = "Kadir Baba"; // Burası istersen Baron Visconti olarak da kalabilir
+                
+                document.getElementById('display-name').innerText = currentUserName.toUpperCase();
+                document.getElementById('display-rank').innerText = currentUserRank;
+
+                applyPermissions(currentUserRank);
+                loadAllModules();
+                return; // Veritabanı sorgusunu atla
+            }
+            // ----------------------------------------
+
+            // Normal kullanıcılar için DB kontrolü
             const q = query(collection(db, "basvurular"), where("systemEmail", "==", email));
             const querySnapshot = await getDocs(q);
             
@@ -262,7 +400,7 @@
                 document.getElementById('display-rank').innerText = currentUserRank;
 
                 applyPermissions(currentUserRank);
-                loadAllModules(); // Tüm verileri dinlemeye başla
+                loadAllModules(); 
             } else {
                 alert("Sistemde kaydınız bulunamadı. Admin ile görüşün.");
                 signOut(auth);
@@ -270,7 +408,6 @@
         }
 
         function applyPermissions(rank) {
-            // Önce hepsini gizle (CSS class restricted zaten gizliyor)
             const allowedModules = PERMISSIONS[rank] || [];
             
             // Eğer THE SHROUD ise hepsini ekle
@@ -279,11 +416,7 @@
                 return;
             }
 
-            // İzin verilenleri aç
             allowedModules.forEach(mod => {
-                const els = document.querySelectorAll(`.role-${mod.substring(0,4)}`); // class isimleri role-fina, role-stra vb. kısa tutulabilir veya tam eşleşme
-                // Biz tam eşleşme yapalım, CSS classlarını JS'de dinamik seçelim:
-                // HTML'de classları şöyle verdim: role-finance, role-strategy...
                 let selector = "";
                 if(mod === 'finance') selector = '.role-finance';
                 if(mod === 'strategy') selector = '.role-strategy';
@@ -291,6 +424,7 @@
                 if(mod === 'hitlist') selector = '.role-hitman';
                 if(mod === 'blacklist') selector = '.role-law';
                 if(mod === 'diplomacy') selector = '.role-diplo';
+                if(mod === 'admin') selector = '.role-admin';
 
                 document.querySelectorAll(selector).forEach(el => el.style.display = 'flex');
             });
@@ -362,11 +496,47 @@
         window.updateDiplo = async () => {
             const gang = document.getElementById('dip-gang').value;
             const status = document.getElementById('dip-status').value;
-            // Diplomasi için var olanı güncellemek yerine basitçe yeni log atıyoruz, 
-            // gelişmiş versiyonda overwrite yapılabilir.
             await addDoc(collection(db, "vom_diplomacy"), { gang, status, user: currentUserName, date: serverTimestamp() });
             alert("İlişki güncellendi.");
         };
+
+        // 7. YENİ: PERM (YETKİ) YÖNETİMİ
+        window.openPermModal = () => {
+            const targetName = document.getElementById('target-user-name').value;
+            if(!targetName) { alert("Lütfen bir kullanıcı adı girin."); return; }
+            
+            document.getElementById('perm-modal-username').innerText = targetName;
+            document.getElementById('perm-modal-overlay').style.display = 'flex';
+            
+            // Burada normalde DB'den mevcut yetkileri çekip checkboxları işaretlemek gerekir.
+            // Şimdilik sıfırdan açılıyor.
+            document.querySelectorAll('.perm-item input').forEach(i => i.checked = false);
+        };
+
+        window.savePermissions = async () => {
+            const targetUser = document.getElementById('perm-modal-username').innerText;
+            
+            const perms = {
+                app_management: document.getElementById('p_app').checked,
+                gun_license: document.getElementById('p_gun').checked,
+                penal_code: document.getElementById('p_penal').checked,
+                staff_manage: document.getElementById('p_staff').checked,
+                staff_fire: document.getElementById('p_fire').checked,
+                perm_manage: document.getElementById('p_perm').checked,
+                blacklist: document.getElementById('p_blacklist').checked,
+                ohal: document.getElementById('p_ohal').checked,
+                delete_record: document.getElementById('p_delete').checked,
+                updatedBy: currentUserName,
+                updatedAt: serverTimestamp()
+            };
+
+            // 'vom_permissions' koleksiyonuna kaydet (hedef kullanıcı ismini ID olarak kullanıyoruz ki üstüne yazsın)
+            await setDoc(doc(db, "vom_permissions", targetUser), perms);
+            
+            alert(`${targetUser} kullanıcısının yetkileri güncellendi!`);
+            document.getElementById('perm-modal-overlay').style.display = 'none';
+        };
+
 
         // --- VERİ DİNLEME (REAL-TIME LISTENER) ---
         function loadAllModules() {
@@ -422,7 +592,7 @@
                 document.getElementById('hit-grid').innerHTML = html;
             });
             
-            // Diplomacy Dinle (Sadece en güncelleri göstermek için basit liste)
+            // Diplomacy Dinle
             onSnapshot(query(collection(db, "vom_diplomacy"), orderBy("date", "desc")), (snap) => {
                 let html = '';
                 snap.forEach(d => {

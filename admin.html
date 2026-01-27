@@ -10,7 +10,7 @@
         :root { 
             --bg-color: #050505; --card-bg: #101014; --text-color: #a0a0a0; 
             --gold: #cfb53b; --red: #8a2020; --green: #1a4a25; --blue: #1e3a5f; --tech: #00ffcc;
-            --purple: #9b59b6; /* Image'daki mor renk için */
+            --purple: #9b59b6; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -57,7 +57,7 @@
         .btn-green { background: var(--green); color: #fff; }
         .btn-red { background: var(--red); color: #fff; }
         
-        /* YENİ EKLENEN ÖZEL YETKİ MODALI STİLLERİ (FOTOĞRAFA GÖRE) */
+        /* ÖZEL YETKİ MODALI */
         #perm-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -88,8 +88,8 @@
         .btn-update-perms:hover { background: #00a382; }
         .close-modal { cursor: pointer; color: #fff; }
 
-        /* Rütbeye Göre Gizleme */
-        .restricted { display: none !important; }
+        /* Rütbeye Göre Gizleme - IMPORTANT KALDIRILDI */
+        .restricted { display: none; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -264,7 +264,7 @@
                 <div class="perm-item">
                     <input type="checkbox" id="p_staff">
                     <div>
-                        <strong>Personel Yönetimi (Ekle/Düzenle)</strong>
+                        <strong>Personel Yönetimi</strong>
                         <span class="perm-desc">Personel ekleyebilir ve rütbe düzenleyebilir.</span>
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                 <div class="perm-item">
                     <input type="checkbox" id="p_perm">
                     <div>
-                        <strong class="text-purple"><i class="fas fa-key"></i> Yetki Yönetimi (Erişim)</strong>
+                        <strong class="text-purple"><i class="fas fa-key"></i> Yetki Yönetimi</strong>
                         <span class="perm-desc">Personel listesindeki mor 'YETKİ' butonunu görebilir.</span>
                     </div>
                 </div>
@@ -330,9 +330,8 @@
         const auth = getAuth(app);
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
-        // --- ROL YETKİ MATRİSİ ---
         const PERMISSIONS = {
-            'THE SHROUD': ['finance', 'strategy', 'intel', 'hitlist', 'blacklist', 'diplomacy', 'admin'], // Admin eklendi
+            'THE SHROUD': ['finance', 'strategy', 'intel', 'hitlist', 'blacklist', 'diplomacy', 'admin'],
             'THE DIAMOND': ['finance', 'diplomacy'],
             'THE PRINCESS': ['strategy', 'finance', 'diplomacy'],
             'THE ARCHITECT': ['strategy', 'diplomacy'],
@@ -353,8 +352,6 @@
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-interface').style.display = 'flex'; 
-                
-                // Kullanıcı bilgilerini ve Rütbeyi Çek
                 await identifyUser(user.email);
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -365,29 +362,25 @@
         document.getElementById('btnLogin').addEventListener('click', () => {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, e, p).catch(err => document.getElementById('loginMsg').innerText = "Erişim Reddedildi: " + err.message);
+            signInWithEmailAndPassword(auth, e, p).catch(err => document.getElementById('loginMsg').innerText = "Hata: " + err.message);
         });
         document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
 
-        // --- KULLANICI TANIMLAMA VE MENÜ AYARLAMA ---
         async function identifyUser(email) {
-            
-            // --- ÖZEL İSTEK: BARON (BOSS) GİRİŞİ ---
-            // Eğer mail baron@visconti.family ise, veritabanına bakmadan BOSS yetkisi ver.
+            // BOSS GİRİŞ KONTROLÜ
             if(email === "baron@visconti.family") {
                 currentUserRank = "THE SHROUD";
-                currentUserName = "Kadir Baba"; // Burası istersen Baron Visconti olarak da kalabilir
+                currentUserName = "Kadir Baba"; 
                 
                 document.getElementById('display-name').innerText = currentUserName.toUpperCase();
                 document.getElementById('display-rank').innerText = currentUserRank;
 
                 applyPermissions(currentUserRank);
                 loadAllModules();
-                return; // Veritabanı sorgusunu atla
+                return; 
             }
-            // ----------------------------------------
 
-            // Normal kullanıcılar için DB kontrolü
+            // NORMAL KULLANICI KONTROLÜ
             const q = query(collection(db, "basvurular"), where("systemEmail", "==", email));
             const querySnapshot = await getDocs(q);
             
@@ -402,20 +395,23 @@
                 applyPermissions(currentUserRank);
                 loadAllModules(); 
             } else {
-                alert("Sistemde kaydınız bulunamadı. Admin ile görüşün.");
+                alert("Sistemde kaydınız bulunamadı.");
                 signOut(auth);
             }
         }
 
         function applyPermissions(rank) {
-            const allowedModules = PERMISSIONS[rank] || [];
+            // CSS'te restricted display:none olarak tanımlı.
+            // Yetkili olanlardan restricted class'ını kaldıracağız.
             
-            // Eğer THE SHROUD ise hepsini ekle
+            // Eğer THE SHROUD ise hepsini aç
             if (rank === 'THE SHROUD') {
-                document.querySelectorAll('.module-btn').forEach(btn => btn.style.display = 'flex');
+                document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('restricted'));
                 return;
             }
 
+            const allowedModules = PERMISSIONS[rank] || [];
+            
             allowedModules.forEach(mod => {
                 let selector = "";
                 if(mod === 'finance') selector = '.role-finance';
@@ -426,7 +422,8 @@
                 if(mod === 'diplomacy') selector = '.role-diplo';
                 if(mod === 'admin') selector = '.role-admin';
 
-                document.querySelectorAll(selector).forEach(el => el.style.display = 'flex');
+                // Seçilen elementlerden restricted class'ını kaldır
+                document.querySelectorAll(selector).forEach(el => el.classList.remove('restricted'));
             });
         }
 
@@ -438,84 +435,18 @@
             event.currentTarget.classList.add('active');
         };
 
-        // --- MODÜL FONKSİYONLARI ---
-
-        // 1. FİNANS
-        window.addFinanceLog = async () => {
-            const desc = document.getElementById('fin-desc').value;
-            const amount = document.getElementById('fin-amount').value;
-            const type = document.getElementById('fin-type').value;
-            if(!desc || !amount) return;
-
-            await addDoc(collection(db, "vom_finance"), { desc, amount, type, user: currentUserName, date: serverTimestamp() });
-            alert("İşlendi.");
-            logToDiscord("FİNANS", `${type}: ${amount}$ - ${desc} (${currentUserName})`);
-        };
-        
-        // 2. STRATEJİ
-        window.addStrategyNote = async () => {
-            const note = document.getElementById('strat-note').value;
-            if(!note) return;
-            await addDoc(collection(db, "vom_strategy"), { note, user: currentUserName, date: serverTimestamp() });
-            document.getElementById('strat-note').value = "";
-        };
-
-        // 3. INTEL
-        window.addIntel = async () => {
-            const target = document.getElementById('intel-target').value;
-            const info = document.getElementById('intel-info').value;
-            if(!target) return;
-            await addDoc(collection(db, "vom_intel"), { target, info, user: currentUserName, date: serverTimestamp() });
-            alert("İstihbarat girildi.");
-        };
-
-        // 4. HITLIST
-        window.addHit = async () => {
-            const target = document.getElementById('hit-target').value;
-            const prio = document.getElementById('hit-prio').value;
-            await addDoc(collection(db, "vom_hits"), { target, prio, status: 'Active', user: currentUserName, date: serverTimestamp() });
-            alert("Hedef işaretlendi.");
-            logToDiscord("SUİKAST EMRİ", `HEDEF: ${target} | ÖNCELİK: ${prio}`);
-        };
-
-        window.completeHit = async (id) => {
-            if(confirm("Hedefin etkisiz hale getirildiğini onaylıyor musun?")) {
-                await updateDoc(doc(db, "vom_hits", id), { status: 'Eliminated' });
-            }
-        };
-
-        // 5. BLACKLIST
-        window.addBlacklist = async () => {
-            const name = document.getElementById('bl-name').value;
-            const reason = document.getElementById('bl-reason').value;
-            await addDoc(collection(db, "vom_blacklist"), { name, reason, user: currentUserName, date: serverTimestamp() });
-            alert("Kara listeye eklendi.");
-        };
-
-        // 6. DIPLOMACY
-        window.updateDiplo = async () => {
-            const gang = document.getElementById('dip-gang').value;
-            const status = document.getElementById('dip-status').value;
-            await addDoc(collection(db, "vom_diplomacy"), { gang, status, user: currentUserName, date: serverTimestamp() });
-            alert("İlişki güncellendi.");
-        };
-
-        // 7. YENİ: PERM (YETKİ) YÖNETİMİ
+        // --- ÖZEL YETKİ (BOSS) ---
         window.openPermModal = () => {
             const targetName = document.getElementById('target-user-name').value;
             if(!targetName) { alert("Lütfen bir kullanıcı adı girin."); return; }
             
             document.getElementById('perm-modal-username').innerText = targetName;
             document.getElementById('perm-modal-overlay').style.display = 'flex';
-            
-            // Burada normalde DB'den mevcut yetkileri çekip checkboxları işaretlemek gerekir.
-            // Şimdilik sıfırdan açılıyor.
             document.querySelectorAll('.perm-item input').forEach(i => i.checked = false);
         };
 
         window.savePermissions = async () => {
             const targetUser = document.getElementById('perm-modal-username').innerText;
-            
             const perms = {
                 app_management: document.getElementById('p_app').checked,
                 gun_license: document.getElementById('p_gun').checked,
@@ -530,17 +461,64 @@
                 updatedAt: serverTimestamp()
             };
 
-            // 'vom_permissions' koleksiyonuna kaydet (hedef kullanıcı ismini ID olarak kullanıyoruz ki üstüne yazsın)
             await setDoc(doc(db, "vom_permissions", targetUser), perms);
-            
             alert(`${targetUser} kullanıcısının yetkileri güncellendi!`);
             document.getElementById('perm-modal-overlay').style.display = 'none';
         };
 
+        // --- DİĞER FONKSİYONLAR ---
+        window.addFinanceLog = async () => {
+            const desc = document.getElementById('fin-desc').value;
+            const amount = document.getElementById('fin-amount').value;
+            const type = document.getElementById('fin-type').value;
+            if(!desc || !amount) return;
+            await addDoc(collection(db, "vom_finance"), { desc, amount, type, user: currentUserName, date: serverTimestamp() });
+            alert("İşlendi.");
+        };
+        
+        window.addStrategyNote = async () => {
+            const note = document.getElementById('strat-note').value;
+            if(!note) return;
+            await addDoc(collection(db, "vom_strategy"), { note, user: currentUserName, date: serverTimestamp() });
+            document.getElementById('strat-note').value = "";
+        };
 
-        // --- VERİ DİNLEME (REAL-TIME LISTENER) ---
+        window.addIntel = async () => {
+            const target = document.getElementById('intel-target').value;
+            const info = document.getElementById('intel-info').value;
+            if(!target) return;
+            await addDoc(collection(db, "vom_intel"), { target, info, user: currentUserName, date: serverTimestamp() });
+            alert("İstihbarat girildi.");
+        };
+
+        window.addHit = async () => {
+            const target = document.getElementById('hit-target').value;
+            const prio = document.getElementById('hit-prio').value;
+            await addDoc(collection(db, "vom_hits"), { target, prio, status: 'Active', user: currentUserName, date: serverTimestamp() });
+            alert("Hedef işaretlendi.");
+        };
+
+        window.completeHit = async (id) => {
+            if(confirm("Onaylıyor musun?")) {
+                await updateDoc(doc(db, "vom_hits", id), { status: 'Eliminated' });
+            }
+        };
+
+        window.addBlacklist = async () => {
+            const name = document.getElementById('bl-name').value;
+            const reason = document.getElementById('bl-reason').value;
+            await addDoc(collection(db, "vom_blacklist"), { name, reason, user: currentUserName, date: serverTimestamp() });
+            alert("Eklendi.");
+        };
+
+        window.updateDiplo = async () => {
+            const gang = document.getElementById('dip-gang').value;
+            const status = document.getElementById('dip-status').value;
+            await addDoc(collection(db, "vom_diplomacy"), { gang, status, user: currentUserName, date: serverTimestamp() });
+            alert("Güncellendi.");
+        };
+
         function loadAllModules() {
-            // Finans Dinle
             onSnapshot(query(collection(db, "vom_finance"), orderBy("date", "desc")), (snap) => {
                 let html = '<table class="log-table"><tr><th>TÜR</th><th>MİKTAR</th><th>AÇIKLAMA</th><th>KİM</th></tr>';
                 snap.forEach(d => {
@@ -552,18 +530,15 @@
                 document.getElementById('finance-list').innerHTML = html;
             });
 
-            // Strateji Dinle
             onSnapshot(query(collection(db, "vom_strategy"), orderBy("date", "desc")), (snap) => {
                 let html = '';
                 snap.forEach(d => {
                     const data = d.data();
-                    html += `<div style="background:#111; padding:10px; border-left:2px solid var(--gold); margin-bottom:10px;">
-                        <small style="color:#666">${data.user}</small><p>${data.note}</p></div>`;
+                    html += `<div style="background:#111; padding:10px; border-left:2px solid var(--gold); margin-bottom:10px;"><small style="color:#666">${data.user}</small><p>${data.note}</p></div>`;
                 });
                 document.getElementById('strategy-list').innerHTML = html;
             });
 
-            // Intel Dinle
             onSnapshot(query(collection(db, "vom_intel"), orderBy("date", "desc")), (snap) => {
                 let html = '';
                 snap.forEach(d => {
@@ -573,7 +548,6 @@
                 document.getElementById('intel-feed').innerHTML = html;
             });
 
-            // Hitlist Dinle
             onSnapshot(query(collection(db, "vom_hits"), orderBy("date", "desc")), (snap) => {
                 let html = '';
                 snap.forEach(d => {
@@ -582,17 +556,11 @@
                     const isDead = data.status === 'Eliminated';
                     const style = isDead ? 'opacity:0.5; text-decoration:line-through;' : '';
                     const btn = isDead ? '' : `<button onclick="window.completeHit('${id}')" style="background:var(--red); border:none; color:#fff; cursor:pointer;">X</button>`;
-                    
-                    html += `<div style="background:#1a1a1a; padding:15px; border:1px solid #333; ${style}">
-                        <h3 style="color:var(--red)">${data.target}</h3>
-                        <p>${data.prio}</p>
-                        ${btn}
-                    </div>`;
+                    html += `<div style="background:#1a1a1a; padding:15px; border:1px solid #333; ${style}"><h3 style="color:var(--red)">${data.target}</h3><p>${data.prio}</p>${btn}</div>`;
                 });
                 document.getElementById('hit-grid').innerHTML = html;
             });
             
-            // Diplomacy Dinle
             onSnapshot(query(collection(db, "vom_diplomacy"), orderBy("date", "desc")), (snap) => {
                 let html = '';
                 snap.forEach(d => {
@@ -605,17 +573,6 @@
                 document.getElementById('diplo-status').innerHTML = html;
             });
         }
-
-        async function logToDiscord(title, desc) {
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: "V.O.M System",
-                    embeds: [{ title: title, description: desc, color: 16763907 }]
-                })
-            });
-        }
-
     </script>
 </body>
 </html>

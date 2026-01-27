@@ -9,50 +9,65 @@
 </head>
 <body class="index-page">
 
+    <div class="bg-overlay"></div>
+
     <div style="text-align:center; padding-top:40px;">
-        <img src="Visconti.jpg" width="150" style="border-radius:50%; border:2px solid #cfb53b; box-shadow:0 0 20px rgba(207,181,59,0.3);">
-        <h1 style="color:#cfb53b; font-family:'Cinzel', serif; margin-top:20px;">VISCONTI AİLESİ</h1>
-        <p style="color:#666;">"Güç, Sadakat, Onur"</p>
+        <img src="Visconti.jpg" width="180" style="border-radius:50%; border:2px solid #cfb53b; box-shadow:0 0 25px rgba(207,181,59,0.3);">
+        <h1 style="color:#cfb53b; font-family:'Cinzel', serif; margin-top:10px;">VISCONTI AİLESİ</h1>
+        <p style="color:#888; font-size:0.9rem; letter-spacing:3px;">"GÜÇ. SADAKAT. ONUR."</p>
     </div>
 
-    <a href="admin.html" style="position:absolute; top:20px; right:20px; color:#333; font-size:1.2rem;"><i class="fas fa-key"></i></a>
+    <a href="admin.html" style="position:absolute; top:20px; right:20px; color:#333; font-size:1.2rem;" title="Yönetim Paneli"><i class="fas fa-key"></i></a>
 
     <div class="container">
         <section>
-            <h2>Resmi Başvuru Formu</h2>
+            <h2><i class="fas fa-scroll"></i> Resmi Başvuru Kaydı</h2>
             <form id="viscontiForm">
                 <div style="display:flex; gap:15px; margin-bottom:20px;">
-                    <input type="text" id="discord_id" class="input-dark" placeholder="Discord ID (örn: kullanici#1234)" required>
-                    <input type="text" id="ic_name" class="input-dark" placeholder="IC İsim Soyisim" required>
-                    <input type="number" id="ic_age" class="input-dark" placeholder="Yaş" style="width:80px;" required>
+                    <div style="flex:1;">
+                        <label style="color:#fff; display:block; margin-bottom:5px;">Discord ID</label>
+                        <input type="text" id="discord_id" class="input-dark" required placeholder="örn: kullanıcı#1234">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="color:#fff; display:block; margin-bottom:5px;">IC İsim Soyisim</label>
+                        <input type="text" id="ic_name" class="input-dark" required placeholder="Karakter Adı">
+                    </div>
+                    <div style="width:100px;">
+                        <label style="color:#fff; display:block; margin-bottom:5px;">Yaş</label>
+                        <input type="number" id="ic_age" class="input-dark" required placeholder="18+">
+                    </div>
                 </div>
 
-                <div style="background:#000; padding:15px; border-radius:6px; max-height:400px; overflow-y:auto; border:1px solid #333; margin-bottom:20px;">
-                    <p style="color:#cfb53b; margin-bottom:10px;">Aşağıdaki soruları detaylıca cevaplayınız:</p>
+                <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:20px; max-height:450px; overflow-y:auto;">
+                    <p style="color:#cfb53b; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:5px;">Mülakat Soruları</p>
                     
                     <div style="margin-bottom:15px;">
-                        <label style="font-size:0.9rem; color:#aaa;">1. Kendinizi ve karakterinizin hikayesini anlatın.</label>
+                        <label style="color:#aaa; font-size:0.9rem;">1. Kendinizi ve hikayenizi tanıtın.</label>
                         <textarea id="q1" class="input-dark" rows="3" required></textarea>
                     </div>
                     <div style="margin-bottom:15px;">
-                        <label style="font-size:0.9rem; color:#aaa;">2. Powergaming ve Metagaming nedir? Örnek verin.</label>
+                        <label style="color:#aaa; font-size:0.9rem;">2. Powergaming & Metagaming nedir?</label>
                         <textarea id="q2" class="input-dark" rows="2" required></textarea>
                     </div>
                     <div style="margin-bottom:15px;">
-                        <label style="font-size:0.9rem; color:#aaa;">3. Bir aile üyesi ihanet ederse tepkiniz ne olur?</label>
+                        <label style="color:#aaa; font-size:0.9rem;">3. FearRP örneği verin.</label>
                         <textarea id="q3" class="input-dark" rows="2" required></textarea>
                     </div>
                     <div style="margin-bottom:15px;">
-                        <label style="font-size:0.9rem; color:#aaa;">4. Aile hiyerarşisine bakış açınız nedir?</label>
+                        <label style="color:#aaa; font-size:0.9rem;">4. Hiyerarşi ve emirlere bakışınız nedir?</label>
                         <textarea id="q4" class="input-dark" rows="2" required></textarea>
                     </div>
                     <div style="margin-bottom:15px;">
-                        <label style="font-size:0.9rem; color:#aaa;">5. Günlük aktiflik süreniz nedir?</label>
-                        <input type="text" id="q5" class="input-dark" required>
+                        <label style="color:#aaa; font-size:0.9rem;">5. Aile içi ihanet durumunda ne yaparsınız?</label>
+                        <textarea id="q5" class="input-dark" rows="2" required></textarea>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="color:#aaa; font-size:0.9rem;">6. Günlük aktiflik süreniz?</label>
+                        <input type="text" id="q6" class="input-dark" required>
                     </div>
                 </div>
 
-                <button type="submit" id="btnSubmit" class="btn-action btn-gold" style="width:100%; padding:15px; font-size:1.1rem;">BAŞVURUYU GÖNDER</button>
+                <button type="submit" id="submitBtn" class="btn-submit">Mühürle ve Gönder</button>
             </form>
         </section>
     </div>
@@ -78,9 +93,8 @@
 
         document.getElementById('viscontiForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmit');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
-            btn.disabled = true;
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = 'İşleniyor...'; btn.disabled = true;
 
             const form = {
                 discord: document.getElementById('discord_id').value,
@@ -90,47 +104,35 @@
                 q2: document.getElementById('q2').value,
                 q3: document.getElementById('q3').value,
                 q4: document.getElementById('q4').value,
-                q5: document.getElementById('q5').value
+                q5: document.getElementById('q5').value,
+                q6: document.getElementById('q6').value
             };
-
-            const fullStory = `**Hikaye:** ${form.q1}\n**PG/MG:** ${form.q2}\n**İhanet:** ${form.q3}\n**Hiyerarşi:** ${form.q4}\n**Aktiflik:** ${form.q5}`;
+            
+            const fullStory = `**Hikaye:** ${form.q1}\n**PG/MG:** ${form.q2}\n**FearRP:** ${form.q3}\n**Hiyerarşi:** ${form.q4}\n**İhanet:** ${form.q5}\n**Aktiflik:** ${form.q6}`;
 
             try {
-                // 1. Firebase Kayıt
                 await addDoc(collection(db, "basvurular"), {
-                    discord: form.discord, icName: form.name, icAge: form.age, 
-                    story: fullStory, tarih: serverTimestamp(), durum: "Beklemede", rank: ""
+                    discord: form.discord, icName: form.name, icAge: form.age, story: fullStory,
+                    tarih: serverTimestamp(), durum: "Beklemede", rank: ""
                 });
 
-                // 2. Discord Bildirim
                 await fetch(WEBHOOK_URL, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        username: "Visconti Başvuru Botu",
+                        username: "Visconti Başvuru",
                         avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
-                        content: `📢 **YENİ BAŞVURU!** <@&1464989769762078934> yetkilileri panele bekleniyor.`,
+                        content: `📢 **Yeni Başvuru!** <@&1464989769762078934> yetkilileri bekleniyor.`,
                         embeds: [{
-                            title: "📝 Başvuru Detayları",
-                            color: 16776960, // Sarı
-                            fields: [
-                                { name: "Kişi", value: form.name, inline: true },
-                                { name: "Discord", value: form.discord, inline: true },
-                                { name: "Yaş", value: form.age, inline: true }
-                            ],
-                            description: "Başvuru içeriği yönetim panelinden okunabilir.",
+                            title: "Başvuru Detayları", color: 16776960,
+                            fields: [{name:"Kişi", value:form.name}, {name:"Discord", value:form.discord}],
                             timestamp: new Date().toISOString()
                         }]
                     })
                 });
 
-                alert("Başvurunuz başarıyla iletildi.");
+                alert("Başvuru gönderildi.");
                 location.reload();
-            } catch (err) {
-                console.error(err);
-                alert("Hata oluştu: " + err.message);
-                btn.disabled = false;
-                btn.innerText = "TEKRAR DENE";
-            }
+            } catch (err) { alert("Hata: " + err.message); btn.disabled = false; btn.innerText = "Tekrar Dene"; }
         });
     </script>
 </body>

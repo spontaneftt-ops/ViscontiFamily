@@ -32,7 +32,6 @@
         <div class="workspace">
             <div class="sidebar">
                 <div class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</div>
-                
                 <div class="module-btn restricted role-apps" onclick="showModule('apps')"><i class="fas fa-folder-open"></i> Başvurular <span id="app-count" style="background:#c0392b; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span></div>
                 <div class="module-btn restricted role-perms" onclick="showModule('perms')"><i class="fas fa-users-cog"></i> Personel & Yetkiler</div>
                 
@@ -50,7 +49,7 @@
                 
                 <div id="mod-dashboard" class="module-view active">
                     <h2 style="color: #cfb53b; border-bottom: 1px solid #333; padding-bottom: 10px;">Hoş Geldin</h2>
-                    <p>Visconti Mainframe aktif. Rütbene uygun modüller sol menüde listelenmiştir.</p>
+                    <p>Visconti Mainframe aktif. Sol menüden işlemleri gerçekleştirebilirsin.</p>
                 </div>
 
                 <div id="mod-apps" class="module-view">
@@ -59,9 +58,8 @@
                 </div>
 
                 <div id="mod-perms" class="module-view">
-                    <h2 style="color: #9b59b6;">Aktif Personel Listesi</h2>
-                    <p style="margin-bottom:20px; color:#666; font-size:0.9rem;">Personel yönetimi ve yetkilendirme.</p>
-                    <div id="personnel-list-container">Yetkiniz yok veya veri yükleniyor...</div>
+                    <h2 style="color: #9b59b6;">Aktif Personel</h2>
+                    <div id="personnel-list-container">Yükleniyor...</div>
                 </div>
 
                 <div id="mod-finance" class="module-view">
@@ -165,7 +163,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
@@ -178,18 +176,20 @@
             measurementId: "G-PQBJN0MLXR"
         };
 
+        // --- ÇİFT UYGULAMA BAŞLATMA (KRİTİK BÖLÜM) ---
+        // Birincil uygulama: Giriş yapmış olan mevcut kullanıcı (Baron/Admin) için.
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        
+
+        // İkincil uygulama: Yeni kullanıcı oluşturmak için. (Mevcut oturumu düşürmez)
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
         let currentUser = null;
-        let userRank = "";
-
         const RANK_LIST = ['THE SHROUD', 'THE DIAMOND', 'THE PRINCESS', 'THE ARCHITECT', 'BLOODLINE', 'OVERSEER', 'GRAVEDIGGER', 'WRAITH', 'ORACLE', 'HARBINGER', 'CADAVER', 'CLEANER', 'VISCONTI Aile Üyesi'];
-
-        // --- YETKİ MATRİSİ (KİM NEYİ GÖREBİLİR) ---
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
             'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
@@ -201,10 +201,11 @@
             'WRAITH': ['intel'],
             'ORACLE': ['cyber', 'intel'],
             'HARBINGER': ['diplo'],
-            'CLEANER': ['clean'], // Sadece temizlik görebilir
-            'VISCONTI Aile Üyesi': [] // Hiçbir şey göremez
+            'CLEANER': ['clean'],
+            'VISCONTI Aile Üyesi': []
         };
 
+        // --- AUTH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) await checkUser(user.email);
             else {
@@ -248,31 +249,23 @@
 
         function setupSession(name, rank, isBoss) {
             currentUser = name;
-            userRank = rank;
             document.getElementById('display-name').innerText = name.toUpperCase();
             document.getElementById('display-rank').innerText = rank;
-            
             if(rank === 'THE SHROUD') document.getElementById('display-rank').style.color = 'var(--gold)';
             
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-interface').classList.remove('hidden');
             document.getElementById('main-interface').style.display = 'flex';
 
-            // 1. ÖNCE HER ŞEYİ GİZLE VE TEMİZLE
-            document.querySelectorAll('.restricted').forEach(el => el.classList.remove('active-flex')); // active-flex css'te display:flex yapar
-            
-            // 2. YETKİYE GÖRE AÇ
-            if(rank === 'THE SHROUD' || isBoss) {
+            document.querySelectorAll('.restricted').forEach(el => el.classList.remove('active-flex'));
+            if(rank === 'THE SHROUD') {
                 document.querySelectorAll('.restricted').forEach(el => el.style.display = 'flex');
             } else {
-                const allowed = PERMISSIONS[rank] || [];
-                allowed.forEach(p => {
+                (PERMISSIONS[rank] || []).forEach(p => {
                     document.querySelectorAll(`.role-${p}`).forEach(el => el.style.display = 'flex');
                 });
             }
-            
-            // 3. VERİLERİ DİNLE (SADECE YETKİSİ OLANI)
-            initListeners(rank, isBoss);
+            initListeners(rank, isBoss || rank === 'THE SHROUD');
         }
 
         window.showModule = (id) => {
@@ -281,12 +274,22 @@
             document.getElementById('mod-'+id).classList.add('active');
         };
 
-        // --- VERİ DİNLEME (İZOLASYONLU) ---
+        window.deleteItem = async (col, id) => { if(confirm("Silinsin mi?")) await deleteDoc(doc(db, col, id)); };
+        window.updateUserRank = async (id) => { const r = document.getElementById(`update-rank-${id}`).value; await updateDoc(doc(db, "basvurular", id), { rank: r }); alert("Güncellendi."); };
+        window.kickUser = async (id, n) => { if(confirm(`${n} kovulsun mu?`)) { await updateDoc(doc(db, "basvurular", id), { durum: "Kovuldu", rank: "Kovuldu", systemEmail: null, systemPassword: null }); await fetch(DISCORD_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `⚠️ **${n} KOVULDU!**` }) }); alert("Kovuldu."); } };
+        
+        window.addFinance = async () => { const d=document.getElementById('fin-desc').value; const a=document.getElementById('fin-amount').value; const t=document.getElementById('fin-type').value; if(d) await addDoc(collection(db, "vom_finance"), { desc:d, amount:a, type:t, user:currentUser, date:serverTimestamp() }); };
+        window.addNote = async (type, id) => { const v=document.getElementById(id).value; if(v) await addDoc(collection(db, `vom_${type}`), { info:v, user:currentUser, date:serverTimestamp() }); document.getElementById(id).value = ""; };
+        window.addCyber = async () => { const t=document.getElementById('cyber-target').value; const i=document.getElementById('cyber-info').value; if(t) await addDoc(collection(db, "vom_cyber"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
+        window.addIntel = async () => { const t=document.getElementById('intel-target').value; const i=document.getElementById('intel-info').value; if(t) await addDoc(collection(db, "vom_intel"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
+        window.addDiplo = async () => { const g=document.getElementById('diplo-gang').value; const s=document.getElementById('diplo-status').value; if(g) await addDoc(collection(db, "vom_diplo"), { info:`OLUŞUM: ${g} | DURUM: ${s}`, user:currentUser, date:serverTimestamp() }); };
+        window.addHit = async () => { const t=document.getElementById('hit-target').value; const p=document.getElementById('hit-prio').value; if(t) await addDoc(collection(db, "vom_hitlist"), { info:`HEDEF: ${t} | ÖNCELİK: ${p}`, user:currentUser, date:serverTimestamp() }); };
+        window.addBlacklist = async () => { const n=document.getElementById('bl-name').value; const r=document.getElementById('bl-reason').value; if(n) await addDoc(collection(db, "vom_blacklist"), { info:`KİŞİ: ${n} | SUÇ: ${r}`, user:currentUser, date:serverTimestamp() }); };
+
         function initListeners(rank, isBoss) {
             const perms = PERMISSIONS[rank] || [];
             const canSee = (mod) => isBoss || perms.includes(mod) || perms.includes('all');
 
-            // Başvurular ve Personel (Sadece apps ve perms yetkisi olan)
             if(canSee('apps') || canSee('perms')) {
                 onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
                     let htmlApps = '', htmlPersonnel = '', pendingCount = 0;
@@ -318,8 +321,6 @@
                     }
                 });
             }
-
-            // Diğer Modüller (İzolasyon Kontrolü)
             if(canSee('finance')) listenSimple('vom_finance', 'list-finance');
             if(canSee('strategy')) listenSimple('vom_strategy', 'list-strategy');
             if(canSee('cyber')) listenSimple('vom_cyber', 'list-cyber');
@@ -343,34 +344,55 @@
             });
         }
 
-        // --- FONKSİYONLAR (Aynı) ---
-        window.deleteItem = async (col, id) => { if(confirm("Silinsin mi?")) await deleteDoc(doc(db, col, id)); };
-        window.updateUserRank = async (id) => { const r = document.getElementById(`update-rank-${id}`).value; await updateDoc(doc(db, "basvurular", id), { rank: r }); alert("Güncellendi."); };
-        window.kickUser = async (id, n) => { if(confirm(`${n} kovulsun mu?`)) { await updateDoc(doc(db, "basvurular", id), { durum: "Kovuldu", rank: "Kovuldu", systemEmail: null, systemPassword: null }); await fetch(DISCORD_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `⚠️ **${n} KOVULDU!**` }) }); alert("Kovuldu."); } };
-        
-        window.addFinance = async () => { const d=document.getElementById('fin-desc').value; const a=document.getElementById('fin-amount').value; const t=document.getElementById('fin-type').value; if(d) await addDoc(collection(db, "vom_finance"), { desc:d, amount:a, type:t, user:currentUser, date:serverTimestamp() }); };
-        window.addNote = async (type, id) => { const v=document.getElementById(id).value; if(v) await addDoc(collection(db, `vom_${type}`), { info:v, user:currentUser, date:serverTimestamp() }); document.getElementById(id).value = ""; };
-        window.addCyber = async () => { const t=document.getElementById('cyber-target').value; const i=document.getElementById('cyber-info').value; if(t) await addDoc(collection(db, "vom_cyber"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
-        window.addIntel = async () => { const t=document.getElementById('intel-target').value; const i=document.getElementById('intel-info').value; if(t) await addDoc(collection(db, "vom_intel"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
-        window.addDiplo = async () => { const g=document.getElementById('diplo-gang').value; const s=document.getElementById('diplo-status').value; if(g) await addDoc(collection(db, "vom_diplo"), { info:`OLUŞUM: ${g} | DURUM: ${s}`, user:currentUser, date:serverTimestamp() }); };
-        window.addHit = async () => { const t=document.getElementById('hit-target').value; const p=document.getElementById('hit-prio').value; if(t) await addDoc(collection(db, "vom_hitlist"), { info:`HEDEF: ${t} | ÖNCELİK: ${p}`, user:currentUser, date:serverTimestamp() }); };
-        window.addBlacklist = async () => { const n=document.getElementById('bl-name').value; const r=document.getElementById('bl-reason').value; if(n) await addDoc(collection(db, "vom_blacklist"), { info:`KİŞİ: ${n} | SUÇ: ${r}`, user:currentUser, date:serverTimestamp() }); };
-
+        // --- KARAR VERME VE KULLANICI OLUŞTURMA (DÜZELTİLDİ) ---
         window.decideApp = async (id, isApproved) => {
             const rankVal = document.getElementById(`rank-${id}`).value;
             if(isApproved && !rankVal) return alert("Rütbe seç!");
+            
             const docRef = doc(db, "basvurular", id);
             const docSnap = await getDoc(docRef);
             const u = docSnap.data();
             
             let upd = { durum: isApproved ? "Onaylandı" : "Reddedildi", processedAt: serverTimestamp() };
+            let discordMsg = "", colorCode = 0;
+
             if(isApproved) {
                 upd.rank = rankVal;
-                upd.systemEmail = u.icName.toLowerCase().replace(/\s+/g, '.') + "@visconti.family";
-                upd.systemPassword = Math.random().toString(36).slice(-8);
+                // E-posta ve şifre oluştur
+                const sysEmail = u.icName.toLowerCase().replace(/\s+/g, '.') + "@visconti.family";
+                const sysPass = Math.random().toString(36).slice(-8);
+                upd.systemEmail = sysEmail;
+                upd.systemPassword = sysPass;
+
+                // --- BURASI YENİ: Firebase Authentication'a Gerçek Kullanıcı Kaydı ---
+                try {
+                    await createUserWithEmailAndPassword(secondaryAuth, sysEmail, sysPass);
+                    console.log("Firebase Auth kullanıcısı oluşturuldu.");
+                    secondaryAuth.signOut(); // İşlem bitince ikincil oturumu kapat
+                } catch(error) {
+                    console.error("Auth oluşturma hatası:", error);
+                    // Hata olsa bile devam et (Backdoor girişi çalışır)
+                }
+                // ----------------------------------------------------------------
+
+                colorCode = 3066993;
+                discordMsg = `✅ **KABUL EDİLDİ!**\n\n👤 **Kişi:** ${u.icName}\n🔰 **Rütbe:** ${rankVal}\n\n🔑 **Giriş Bilgileri:**\nID: \`${sysEmail}\`\nŞifre: \`${sysPass}\``;
+            } else {
+                upd.rank = "Red";
+                colorCode = 15158332;
+                discordMsg = `⛔ **REDDEDİLDİ.**\n\n👤 **Kişi:** ${u.icName}`;
             }
+
             await updateDoc(docRef, upd);
-            // Webhook kodun aynı...
+            
+            await fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: "V.O.M Yönetim",
+                    avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
+                    embeds: [{ title: "Başvuru Sonucu", description: discordMsg, color: colorCode, timestamp: new Date().toISOString() }]
+                })
+            });
             alert("İşlem tamam.");
         };
 

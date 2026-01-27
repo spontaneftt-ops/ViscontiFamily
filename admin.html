@@ -65,6 +65,15 @@
         .btn-save-rank { width: 100%; margin-top: 10px; padding: 8px; background: var(--accent-gold); color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
         .btn-save-rank:hover { filter: brightness(1.2); }
 
+        /* MANUEL EKLEME BUTONU & MODAL */
+        .btn-manual-add { background: linear-gradient(45deg, var(--accent-gold), #8a7620); color: #000; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .btn-manual-add:hover { box-shadow: 0 0 15px rgba(207, 181, 59, 0.4); transform: translateY(-2px); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 500px; padding: 30px; border-radius: 8px; border: 1px solid var(--accent-gold); box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; color: #fff; cursor: pointer; font-size: 1.5rem; }
+        .modal-title { font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+
         /* Scrollbar */
         .story-box::-webkit-scrollbar { width: 5px; }
         .story-box::-webkit-scrollbar-track { background: #111; }
@@ -81,6 +90,28 @@
             <input type="password" id="adminPass" class="login-input" placeholder="Şifre">
             <button class="btn-login" id="loginBtn">Giriş Yap</button>
             <p id="loginError" style="color: #8a2020; margin-top: 10px; font-size: 0.9rem;"></p>
+        </div>
+    </div>
+
+    <div id="manualModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="window.closeModal()">&times;</span>
+            <h3 class="modal-title">Manuel Aile Üyesi Kaydı</h3>
+            
+            <label style="color:#aaa; font-size:0.9rem;">Discord ID (örn: 3452...)</label>
+            <input type="text" id="manualDiscord" class="login-input" placeholder="Discord ID Giriniz">
+            
+            <label style="color:#aaa; font-size:0.9rem;">IC İsim Soyisim</label>
+            <input type="text" id="manualName" class="login-input" placeholder="Karakter Adı">
+            
+            <label style="color:#aaa; font-size:0.9rem;">IC Yaş</label>
+            <input type="number" id="manualAge" class="login-input" placeholder="Yaş">
+
+            <label style="color:#aaa; font-size:0.9rem;">Başlangıç Rütbesi</label>
+            <select id="manualRank" class="login-input" style="background:#000; color:#fff;">
+                </select>
+
+            <button class="btn-login" id="btnManualSubmit" onclick="window.submitManualRegister()">Kayıt Oluştur ve Ekle</button>
         </div>
     </div>
 
@@ -104,7 +135,10 @@
         </div>
 
         <div id="view-uyeler" class="section-view">
-            <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-family: 'Cinzel', serif;">Aktif Aile Üyeleri & Hiyerarşi</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color: var(--accent-gold); font-family: 'Cinzel', serif;">Aktif Aile Üyeleri & Hiyerarşi</h3>
+                <button class="btn-manual-add" onclick="window.openModal()"><i class="fas fa-plus-circle"></i> Hızlı Üye Ekle</button>
+            </div>
             <div class="grid" id="membersGrid"><p style="color: #666;">Yükleniyor...</p></div>
         </div>
 
@@ -112,7 +146,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, addDoc, doc, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -161,6 +195,7 @@
                 loginScreen.style.display = 'none'; 
                 dashboard.style.display = 'block'; 
                 refreshAllData();
+                fillRankDropdown();
             } else { 
                 loginScreen.style.display = 'flex'; 
                 dashboard.style.display = 'none'; 
@@ -180,6 +215,65 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${tabName}`).classList.add('active');
             event.target.classList.add('active');
+        };
+
+        // --- MANUEL KAYIT MODAL FONKSİYONLARI ---
+        function fillRankDropdown() {
+            const select = document.getElementById('manualRank');
+            select.innerHTML = '';
+            VISCONTI_RANKS.forEach(r => {
+                select.innerHTML += `<option value="${r.name}">${r.icon} ${r.name}</option>`;
+            });
+        }
+        window.openModal = () => document.getElementById('manualModal').style.display = 'flex';
+        window.closeModal = () => document.getElementById('manualModal').style.display = 'none';
+
+        window.submitManualRegister = async () => {
+            const discord = document.getElementById('manualDiscord').value;
+            const name = document.getElementById('manualName').value;
+            const age = document.getElementById('manualAge').value;
+            const rank = document.getElementById('manualRank').value;
+            const btn = document.getElementById('btnManualSubmit');
+
+            if(!discord || !name || !age) { alert("Tüm alanları doldur."); return; }
+
+            btn.innerText = "İşleniyor...";
+            btn.disabled = true;
+
+            // 1. Rastgele Şifre ve E-posta Oluştur
+            const randomPass = Math.random().toString(36).slice(-8); 
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+            const generatedEmail = `${safeName}${Math.floor(Math.random() * 1000)}@visconti.family`;
+
+            try {
+                // 2. Secondary Auth ile User Oluştur
+                await createUserWithEmailAndPassword(secondaryAuth, generatedEmail, randomPass);
+
+                // 3. Firestore'a Ekle
+                await addDoc(collection(db, "basvurular"), {
+                    discord: discord,
+                    icName: name,
+                    icAge: age,
+                    rank: rank,
+                    durum: "Onaylandı", // Direkt onaylı
+                    systemEmail: generatedEmail,
+                    story: "Manuel Yönetici Kaydı", // Hikaye yerine bu yazacak
+                    tarih: serverTimestamp()
+                });
+
+                // 4. Discord'a Bildir
+                await sendManualToDiscord({ discord, icName: name, generatedEmail, randomPass, rank });
+
+                alert(`Kayıt Başarılı!\nKullanıcı: ${generatedEmail}\nŞifre: ${randomPass}`);
+                window.closeModal();
+                refreshAllData();
+            } catch (err) {
+                console.error(err);
+                alert("Hata: " + err.message);
+            } finally {
+                btn.innerText = "Kayıt Oluştur ve Ekle";
+                btn.disabled = false;
+            }
         };
 
         async function refreshAllData() {
@@ -283,36 +377,24 @@
         window.approveApp = async (id, discord, icName) => {
             if(!confirm(`${icName} başvurusunu onaylayıp SİSTEM GİRİŞ BİLGİLERİNİ göndermek istiyor musun?`)) return;
             
-            // 1. Rastgele Şifre ve E-posta Oluştur
-            const randomPass = Math.random().toString(36).slice(-8); // Örn: 8 karakterli rastgele şifre
-            // E-posta formatı: isimsoyisim_RastgeleSayi@visconti.family
+            const randomPass = Math.random().toString(36).slice(-8);
             const safeName = icName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
             const generatedEmail = `${safeName}${Math.floor(Math.random() * 100)}@visconti.family`;
 
             try {
-                // 2. Firebase Auth'da Kullanıcı Oluştur (Secondary App kullanarak, böylece Admin çıkış yapmaz)
                 await createUserWithEmailAndPassword(secondaryAuth, generatedEmail, randomPass);
-
-                // 3. Veritabanını Güncelle
                 await updateDoc(doc(db, "basvurular", id), { 
                     durum: "Onaylandı",
                     rank: "Visconti Aile Üyesi",
                     systemEmail: generatedEmail
                 });
-
-                // 4. Discord'a Bilgileri Gönder
                 await sendToDiscord({ discord, icName, generatedEmail, randomPass }, "Onaylandı");
-                
                 alert(`Kullanıcı oluşturuldu: ${generatedEmail}`);
                 refreshAllData();
 
             } catch (err) { 
                 console.error(err);
-                if(err.code === 'auth/email-already-in-use') {
-                    alert("Bu isimde bir kullanıcı zaten var. Lütfen tekrar deneyin (rastgele sayı değişecektir).");
-                } else {
-                    alert("Hesap oluşturma hatası: " + err.message); 
-                }
+                alert("Hata: " + err.message); 
             }
         };
 
@@ -376,6 +458,23 @@
                     fields: [{ name: "Kişi", value: `<@${data.discord}>`, inline: true }]
                 };
             }
+            await postWebhook(embedData);
+        }
+
+        async function sendManualToDiscord(data) {
+             const rankObj = VISCONTI_RANKS.find(r => r.name === data.rank);
+             const color = parseInt(rankObj ? rankObj.color.replace("#","") : "cfb53b", 16);
+
+             const embedData = {
+                title: "🔱 VISCONTI DİREKT ATAMA",
+                desc: `Baron emriyle **${data.icName}** aileye doğrudan dahil edilmiştir.`,
+                color: color,
+                fields: [
+                    { name: "Kişi", value: `<@${data.discord}>`, inline: true },
+                    { name: "Rütbe", value: data.rank, inline: true },
+                    { name: "🔐 GİZLİ ERİŞİM KARTI", value: `**E-posta:** ${data.generatedEmail}\n**Şifre:** ||${data.randomPass}||`, inline: false }
+                ]
+            };
             await postWebhook(embedData);
         }
 

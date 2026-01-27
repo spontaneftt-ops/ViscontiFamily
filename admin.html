@@ -151,7 +151,7 @@
                 <label><input type="checkbox" id="p_intel"> İstihbarat</label>
                 <label><input type="checkbox" id="p_hitlist"> İnfaz</label>
                 <label><input type="checkbox" id="p_diplo"> Diplomasi</label>
-                <label><input type="checkbox" id="p_admin" style="accent-color:red;"> <span style="color:red;">BOSS</span></label>
+                <label><input type="checkbox" id="p_admin" style="accent-color:red;"> <span style="color:red;">BOSS (Full Yetki)</span></label>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-action btn-green" onclick="savePerms()" style="flex:1;">KAYDET</button>
@@ -176,13 +176,10 @@
             measurementId: "G-PQBJN0MLXR"
         };
 
-        // --- ÇİFT UYGULAMA BAŞLATMA (KRİTİK BÖLÜM) ---
-        // Birincil uygulama: Giriş yapmış olan mevcut kullanıcı (Baron/Admin) için.
+        // --- UYGULAMALAR ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
-        // İkincil uygulama: Yeni kullanıcı oluşturmak için. (Mevcut oturumu düşürmez)
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
         const secondaryAuth = getAuth(secondaryApp);
 
@@ -190,6 +187,8 @@
 
         let currentUser = null;
         const RANK_LIST = ['THE SHROUD', 'THE DIAMOND', 'THE PRINCESS', 'THE ARCHITECT', 'BLOODLINE', 'OVERSEER', 'GRAVEDIGGER', 'WRAITH', 'ORACLE', 'HARBINGER', 'CADAVER', 'CLEANER', 'VISCONTI Aile Üyesi'];
+        
+        // STATIC PERMISSIONS
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
             'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
@@ -217,7 +216,6 @@
         document.getElementById('btnLogin').addEventListener('click', () => {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
-            // Backdoor
             if(e === "baron@visconti.family" && p === "Kadir59312er") {
                 setupSession("Kadir Baba", "THE SHROUD", true);
                 return;
@@ -247,7 +245,8 @@
             }
         }
 
-        function setupSession(name, rank, isBoss) {
+        // --- KRİTİK GÜNCELLEME: ÖZEL YETKİLERİ OKUMA ---
+        async function setupSession(name, rank, isBoss) {
             currentUser = name;
             document.getElementById('display-name').innerText = name.toUpperCase();
             document.getElementById('display-rank').innerText = rank;
@@ -258,37 +257,52 @@
             document.getElementById('main-interface').style.display = 'flex';
 
             document.querySelectorAll('.restricted').forEach(el => el.classList.remove('active-flex'));
-            if(rank === 'THE SHROUD') {
+            
+            // 1. ÖZEL YETKİLERİ FIREBASE'DEN ÇEK
+            let customPerms = {};
+            try {
+                const permSnap = await getDoc(doc(db, "vom_permissions", name));
+                if (permSnap.exists()) {
+                    customPerms = permSnap.data();
+                }
+            } catch (e) { console.log("Yetki okuma hatası veya yetki yok", e); }
+
+            // 2. BOSS KONTROLÜ (Rütbe VEYA Özel Yetki)
+            const effectiveBoss = isBoss || customPerms.admin === true || rank === 'THE SHROUD';
+
+            // 3. MODÜLLERİ AÇMA MANTIĞI
+            const staticPerms = PERMISSIONS[rank] || [];
+
+            // Helper: Bir modülü açma
+            const show = (selector) => document.querySelectorAll(selector).forEach(el => el.style.display = 'flex');
+
+            if (effectiveBoss) {
                 document.querySelectorAll('.restricted').forEach(el => el.style.display = 'flex');
             } else {
-                (PERMISSIONS[rank] || []).forEach(p => {
-                    document.querySelectorAll(`.role-${p}`).forEach(el => el.style.display = 'flex');
-                });
+                // Rütbe Bazlı
+                staticPerms.forEach(p => show(`.role-${p}`));
+                
+                // Özel Yetki Bazlı (Manuel Eklenenler)
+                if(customPerms.apps) show('.role-apps');
+                if(customPerms.finance) show('.role-finance');
+                if(customPerms.strategy) show('.role-strategy');
+                if(customPerms.cyber) show('.role-cyber');
+                if(customPerms.clean) show('.role-clean');
+                if(customPerms.intel) show('.role-intel');
+                if(customPerms.hitlist) show('.role-hitlist');
+                if(customPerms.diplo) show('.role-diplo');
             }
-            initListeners(rank, isBoss || rank === 'THE SHROUD');
+
+            // 4. LİSTENERLARI BAŞLAT (ÖZEL YETKİLERİ GÖNDERİYORUZ)
+            initListeners(rank, effectiveBoss, customPerms);
         }
 
-        window.showModule = (id) => {
-            document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.module-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById('mod-'+id).classList.add('active');
-        };
-
-        window.deleteItem = async (col, id) => { if(confirm("Silinsin mi?")) await deleteDoc(doc(db, col, id)); };
-        window.updateUserRank = async (id) => { const r = document.getElementById(`update-rank-${id}`).value; await updateDoc(doc(db, "basvurular", id), { rank: r }); alert("Güncellendi."); };
-        window.kickUser = async (id, n) => { if(confirm(`${n} kovulsun mu?`)) { await updateDoc(doc(db, "basvurular", id), { durum: "Kovuldu", rank: "Kovuldu", systemEmail: null, systemPassword: null }); await fetch(DISCORD_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `⚠️ **${n} KOVULDU!**` }) }); alert("Kovuldu."); } };
-        
-        window.addFinance = async () => { const d=document.getElementById('fin-desc').value; const a=document.getElementById('fin-amount').value; const t=document.getElementById('fin-type').value; if(d) await addDoc(collection(db, "vom_finance"), { desc:d, amount:a, type:t, user:currentUser, date:serverTimestamp() }); };
-        window.addNote = async (type, id) => { const v=document.getElementById(id).value; if(v) await addDoc(collection(db, `vom_${type}`), { info:v, user:currentUser, date:serverTimestamp() }); document.getElementById(id).value = ""; };
-        window.addCyber = async () => { const t=document.getElementById('cyber-target').value; const i=document.getElementById('cyber-info').value; if(t) await addDoc(collection(db, "vom_cyber"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
-        window.addIntel = async () => { const t=document.getElementById('intel-target').value; const i=document.getElementById('intel-info').value; if(t) await addDoc(collection(db, "vom_intel"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
-        window.addDiplo = async () => { const g=document.getElementById('diplo-gang').value; const s=document.getElementById('diplo-status').value; if(g) await addDoc(collection(db, "vom_diplo"), { info:`OLUŞUM: ${g} | DURUM: ${s}`, user:currentUser, date:serverTimestamp() }); };
-        window.addHit = async () => { const t=document.getElementById('hit-target').value; const p=document.getElementById('hit-prio').value; if(t) await addDoc(collection(db, "vom_hitlist"), { info:`HEDEF: ${t} | ÖNCELİK: ${p}`, user:currentUser, date:serverTimestamp() }); };
-        window.addBlacklist = async () => { const n=document.getElementById('bl-name').value; const r=document.getElementById('bl-reason').value; if(n) await addDoc(collection(db, "vom_blacklist"), { info:`KİŞİ: ${n} | SUÇ: ${r}`, user:currentUser, date:serverTimestamp() }); };
-
-        function initListeners(rank, isBoss) {
+        // --- VERİ OKUMA (ÖZEL YETKİ DESTEKLİ) ---
+        function initListeners(rank, isBoss, customPerms) {
             const perms = PERMISSIONS[rank] || [];
-            const canSee = (mod) => isBoss || perms.includes(mod) || perms.includes('all');
+            
+            // Bu fonksiyon: Rütbe yetkisi VARSA veya Özel Yetki VARSA true döner
+            const canSee = (mod) => isBoss || perms.includes(mod) || perms.includes('all') || customPerms[mod] === true;
 
             if(canSee('apps') || canSee('perms')) {
                 onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
@@ -316,7 +330,7 @@
                         document.getElementById('app-list').innerHTML = htmlApps || 'Bekleyen yok.';
                         document.getElementById('app-count').innerText = pendingCount;
                     }
-                    if(canSee('perms')) {
+                    if(canSee('perms')) { // Genellikle apps yetkisi olan perms de görür ama ayırabilirsin
                         document.getElementById('personnel-list-container').innerHTML = htmlPersonnel || 'Personel yok.';
                     }
                 });
@@ -344,7 +358,24 @@
             });
         }
 
-        // --- KARAR VERME VE KULLANICI OLUŞTURMA (DÜZELTİLDİ) ---
+        window.showModule = (id) => {
+            document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.module-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('mod-'+id).classList.add('active');
+        };
+
+        window.deleteItem = async (col, id) => { if(confirm("Silinsin mi?")) await deleteDoc(doc(db, col, id)); };
+        window.updateUserRank = async (id) => { const r = document.getElementById(`update-rank-${id}`).value; await updateDoc(doc(db, "basvurular", id), { rank: r }); alert("Güncellendi."); };
+        window.kickUser = async (id, n) => { if(confirm(`${n} kovulsun mu?`)) { await updateDoc(doc(db, "basvurular", id), { durum: "Kovuldu", rank: "Kovuldu", systemEmail: null, systemPassword: null }); await fetch(DISCORD_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `⚠️ **${n} KOVULDU!**` }) }); alert("Kovuldu."); } };
+        
+        window.addFinance = async () => { const d=document.getElementById('fin-desc').value; const a=document.getElementById('fin-amount').value; const t=document.getElementById('fin-type').value; if(d) await addDoc(collection(db, "vom_finance"), { desc:d, amount:a, type:t, user:currentUser, date:serverTimestamp() }); };
+        window.addNote = async (type, id) => { const v=document.getElementById(id).value; if(v) await addDoc(collection(db, `vom_${type}`), { info:v, user:currentUser, date:serverTimestamp() }); document.getElementById(id).value = ""; };
+        window.addCyber = async () => { const t=document.getElementById('cyber-target').value; const i=document.getElementById('cyber-info').value; if(t) await addDoc(collection(db, "vom_cyber"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
+        window.addIntel = async () => { const t=document.getElementById('intel-target').value; const i=document.getElementById('intel-info').value; if(t) await addDoc(collection(db, "vom_intel"), { info:`HEDEF: ${t} | ${i}`, user:currentUser, date:serverTimestamp() }); };
+        window.addDiplo = async () => { const g=document.getElementById('diplo-gang').value; const s=document.getElementById('diplo-status').value; if(g) await addDoc(collection(db, "vom_diplo"), { info:`OLUŞUM: ${g} | DURUM: ${s}`, user:currentUser, date:serverTimestamp() }); };
+        window.addHit = async () => { const t=document.getElementById('hit-target').value; const p=document.getElementById('hit-prio').value; if(t) await addDoc(collection(db, "vom_hitlist"), { info:`HEDEF: ${t} | ÖNCELİK: ${p}`, user:currentUser, date:serverTimestamp() }); };
+        window.addBlacklist = async () => { const n=document.getElementById('bl-name').value; const r=document.getElementById('bl-reason').value; if(n) await addDoc(collection(db, "vom_blacklist"), { info:`KİŞİ: ${n} | SUÇ: ${r}`, user:currentUser, date:serverTimestamp() }); };
+
         window.decideApp = async (id, isApproved) => {
             const rankVal = document.getElementById(`rank-${id}`).value;
             if(isApproved && !rankVal) return alert("Rütbe seç!");
@@ -358,25 +389,18 @@
 
             if(isApproved) {
                 upd.rank = rankVal;
-                // E-posta ve şifre oluştur
                 const sysEmail = u.icName.toLowerCase().replace(/\s+/g, '.') + "@visconti.family";
                 const sysPass = Math.random().toString(36).slice(-8);
                 upd.systemEmail = sysEmail;
                 upd.systemPassword = sysPass;
 
-                // --- BURASI YENİ: Firebase Authentication'a Gerçek Kullanıcı Kaydı ---
                 try {
                     await createUserWithEmailAndPassword(secondaryAuth, sysEmail, sysPass);
-                    console.log("Firebase Auth kullanıcısı oluşturuldu.");
-                    secondaryAuth.signOut(); // İşlem bitince ikincil oturumu kapat
-                } catch(error) {
-                    console.error("Auth oluşturma hatası:", error);
-                    // Hata olsa bile devam et (Backdoor girişi çalışır)
-                }
-                // ----------------------------------------------------------------
+                    secondaryAuth.signOut();
+                } catch(e) { console.error("Auth kaydı yapılamadı (Sadece DB)"); }
 
                 colorCode = 3066993;
-                discordMsg = `✅ **KABUL EDİLDİ!**\n\n👤 **Kişi:** ${u.icName}\n🔰 **Rütbe:** ${rankVal}\n\n🔑 **Giriş Bilgileri:**\nID: \`${sysEmail}\`\nŞifre: \`${sysPass}\``;
+                discordMsg = `✅ **KABUL EDİLDİ!**\n\n👤 **Kişi:** ${u.icName}\n🔰 **Rütbe:** ${rankVal}\n\n🔑 **Giriş:**\nID: \`${sysEmail}\`\nŞifre: \`${sysPass}\``;
             } else {
                 upd.rank = "Red";
                 colorCode = 15158332;

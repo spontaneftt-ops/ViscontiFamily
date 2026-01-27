@@ -1,16 +1,12 @@
-/* --- VISCONTI MAIN STYLESHEET (V.4.0 - HIERARCHY UPDATE) --- */
+/* --- VISCONTI MAIN STYLESHEET (V.5.0 - PERSONNEL LIST UPDATE) --- */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap');
 
 :root { 
     --gold: #cfb53b; 
-    --diamond: #3498db; /* The Diamond */
-    --princess: #e91e63; /* The Princess */
-    --architect: #2ecc71; /* The Architect */
-    --blood: #c0392b; /* Bloodline/Hitman */
-    --oracle: #00bcd4; /* Oracle */
-    --wraith: #9b59b6; /* Wraith */
-    --cadaver: #7f8c8d;
-    
+    --diamond: #3498db; 
+    --princess: #e91e63; 
+    --architect: #2ecc71; 
+    --oracle: #00bcd4; 
     --bg-dark: #050505; --card-bg: #101014; --text-main: #a0a0a0;
 }
 
@@ -19,7 +15,7 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color
 
 /* --- ORTAK --- */
 .hidden { display: none !important; }
-.btn-action { border: none; padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.8rem; transition: 0.3s; }
+.btn-action { border: none; padding: 6px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.75rem; transition: 0.3s; }
 .btn-action:hover { filter: brightness(1.2); }
 .btn-green { background: #27ae60; color: #fff; }
 .btn-red { background: #c0392b; color: #fff; }
@@ -46,13 +42,16 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color
 .module-view { display: none; animation: fadeIn 0.4s ease-out; }
 .module-view.active { display: block; }
 
-/* --- RÜTBE ETİKETLERİ (GÖRSELDEKİ GİBİ) --- */
-.rank-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #333; margin-left: 5px; }
-.rank-shroud { color: var(--gold); border-color: var(--gold); }
-.rank-diamond { color: var(--diamond); border-color: var(--diamond); }
-.rank-princess { color: var(--princess); border-color: var(--princess); }
-.rank-architect { color: var(--architect); border-color: var(--architect); }
-.rank-oracle { color: var(--oracle); border-color: var(--oracle); }
+/* --- PERSONEL LİSTESİ (YENİ) --- */
+.personnel-list-container { display: flex; flex-direction: column; gap: 10px; }
+.personnel-row { 
+    background: #151515; border: 1px solid #333; padding: 15px; border-radius: 6px; 
+    display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
+}
+.personnel-row:hover { border-color: var(--gold); background: #1a1a1a; }
+.p-info { display: flex; flex-direction: column; }
+.p-name { color: #fff; font-weight: bold; font-size: 1rem; }
+.p-rank { color: #666; font-size: 0.8rem; margin-top: 2px; font-family: 'Share Tech Mono', monospace; }
 
 /* --- BAŞVURU KARTLARI --- */
 .app-card { background: #151515; border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 8px; position: relative; }

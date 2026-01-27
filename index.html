@@ -9,6 +9,19 @@
 </head>
 <body class="index-page">
 
+    <audio id="bgMusic" loop>
+        <source src="visconti.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-control paused" id="musicBtn" title="Müziği Aç/Kapat">
+        <div class="music-equalizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <span class="music-label" style="font-family: 'Cinzel', serif; font-size: 0.85rem;">SES</span>
+    </div>
+
     <div class="bg-overlay"></div>
 
     <div style="text-align:center; padding-top:40px;">
@@ -76,6 +89,42 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // --- MÜZİK KONTROL SİSTEMİ ---
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let isPlaying = false;
+        bgMusic.volume = 0.4;
+
+        // Müzik Başlat/Durdur
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicBtn.classList.add('paused');
+                musicBtn.querySelector('.music-label').innerText = "DURDU";
+            } else {
+                bgMusic.play().then(() => {
+                    musicBtn.classList.remove('paused');
+                    musicBtn.querySelector('.music-label').innerText = "ÇALIYOR";
+                }).catch(e => console.log("Otomatik oynatma tarayıcı tarafından engellendi, etkileşim bekleniyor."));
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Sayfaya ilk tıklamada müziği başlat (Tarayıcı engeline karşı)
+        document.body.addEventListener('click', function() { 
+            if (!isPlaying) {
+                toggleMusic();
+                isPlaying = true; // Tekrar tetiklenmesin diye manuel set
+            } 
+        }, { once: true });
+
+        // Butona tıklama
+        musicBtn.addEventListener('click', (e) => { 
+            e.stopPropagation(); // Sayfa tıklamasını engelle
+            toggleMusic(); 
+        });
+
+        // --- FIREBASE BAĞLANTISI ---
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
             authDomain: "veltora.firebaseapp.com",
@@ -130,7 +179,7 @@
                     })
                 });
 
-                alert("Başvuru gönderildi.");
+                alert("Başvuru başarıyla gönderildi. Konsey incelemeye başlayacak.");
                 location.reload();
             } catch (err) { alert("Hata: " + err.message); btn.disabled = false; btn.innerText = "Tekrar Dene"; }
         });

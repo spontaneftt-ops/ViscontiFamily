@@ -34,17 +34,13 @@
                 <div class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</div>
                 
                 <div class="module-btn restricted role-apps" onclick="showModule('apps')"><i class="fas fa-folder-open"></i> Başvurular <span id="app-count" style="background:#c0392b; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span></div>
-                <div class="module-btn restricted role-perms" onclick="showModule('perms')"><i class="fas fa-user-shield"></i> Yetki Yönetimi</div>
+                <div class="module-btn restricted role-perms" onclick="showModule('perms')"><i class="fas fa-users-cog"></i> Personel & Yetkiler</div>
                 
                 <div class="module-btn restricted role-finance" onclick="showModule('finance')"><i class="fas fa-coins"></i> Kasa (Diamond)</div>
                 <div class="module-btn restricted role-diplo" onclick="showModule('diplo')"><i class="fas fa-handshake"></i> Diplomasi</div>
-
                 <div class="module-btn restricted role-strategy" onclick="showModule('strategy')"><i class="fas fa-map-marked-alt"></i> Bölge & İnşaat</div>
-
                 <div class="module-btn restricted role-cyber" onclick="showModule('cyber')"><i class="fas fa-network-wired"></i> Siber Ağ (Oracle)</div>
                 <div class="module-btn restricted role-intel" onclick="showModule('intel')"><i class="fas fa-user-secret"></i> İstihbarat (Wraith)</div>
-
-                <div class="module-btn restricted role-blacklist" onclick="showModule('blacklist')"><i class="fas fa-gavel"></i> Blacklist (Overseer)</div>
                 <div class="module-btn restricted role-hitlist" onclick="showModule('hitlist')"><i class="fas fa-crosshairs"></i> İnfaz Listesi</div>
                 <div class="module-btn restricted role-clean" onclick="showModule('cleanup')"><i class="fas fa-biohazard"></i> Temizlik (Cleaner)</div>
             </div>
@@ -53,23 +49,26 @@
                 
                 <div id="mod-dashboard" class="module-view active">
                     <h2 style="color: #cfb53b; border-bottom: 1px solid #333; padding-bottom: 10px;">Hoş Geldin</h2>
-                    <p>Visconti Mainframe aktif. Rütbene uygun modüller sol menüde listelenmiştir.</p>
+                    <p>Visconti Mainframe aktif.</p>
                 </div>
 
                 <div id="mod-apps" class="module-view">
-                    <h2 style="color: #e91e63;">Başvuru & İK Merkezi</h2> <div id="app-list">Yükleniyor...</div>
+                    <h2 style="color: #e91e63;">Başvuru & İK Merkezi</h2>
+                    <div id="app-list">Yükleniyor...</div>
                 </div>
 
                 <div id="mod-perms" class="module-view">
-                    <h2 style="color: #9b59b6;">Personel & Yetkiler</h2>
-                    <div style="display:flex; gap:10px; margin-bottom:20px;">
-                        <input type="text" id="perm-target" class="input-dark" placeholder="Kullanıcı Adı" style="width:300px;">
-                        <button class="btn-action btn-green" onclick="openPermModal()">YAPILANDIR</button>
+                    <h2 style="color: #9b59b6;">Aktif Personel Listesi</h2>
+                    <p style="margin-bottom: 20px; font-size: 0.9rem; color: #666;">Aileye kabul edilmiş üyelerin yetkilerini buradan yapılandır.</p>
+                    
+                    <div id="personnel-list-container" class="personnel-list-container">
+                        Yükleniyor...
                     </div>
                 </div>
 
                 <div id="mod-finance" class="module-view">
-                    <h2 style="color: #3498db;">Hazine Yönetimi</h2> <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <h2 style="color: #3498db;">Hazine Yönetimi</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                         <input type="text" id="fin-desc" class="input-dark" placeholder="Açıklama">
                         <input type="number" id="fin-amount" class="input-dark" placeholder="Miktar">
                         <select id="fin-type" class="input-dark"><option>GELİR</option><option>GİDER</option></select>
@@ -79,16 +78,18 @@
                 </div>
 
                 <div id="mod-strategy" class="module-view">
-                    <h2 style="color: #2ecc71;">Bölge Kontrol & İnşaat</h2> <textarea id="strat-note" class="input-dark" rows="5" placeholder="Yeni bölge planı veya inşaat durumu..."></textarea>
+                    <h2 style="color: #2ecc71;">Bölge Kontrol & İnşaat</h2>
+                    <textarea id="strat-note" class="input-dark" rows="5" placeholder="Not..."></textarea>
                     <button class="btn-action btn-green" onclick="addNote('strategy')">PLANI YAYINLA</button>
                     <div id="list-strategy" style="margin-top:20px;"></div>
                 </div>
 
                 <div id="mod-cyber" class="module-view">
-                    <h2 style="color: #00bcd4;">Oracle Siber Ağı</h2> <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <h2 style="color: #00bcd4;">Oracle Siber Ağı</h2>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                         <div>
-                            <input type="text" id="cyber-target" class="input-dark" placeholder="IP / Kişi / Frekans">
-                            <textarea id="cyber-info" class="input-dark" rows="3" placeholder="Hack sonucu / Dinleme kaydı..."></textarea>
+                            <input type="text" id="cyber-target" class="input-dark" placeholder="IP / Kişi">
+                            <textarea id="cyber-info" class="input-dark" rows="3" placeholder="Bilgi..."></textarea>
                             <button class="btn-action btn-blue" onclick="addNote('cyber')">VERİ GİRİŞİ</button>
                         </div>
                         <div id="list-cyber" style="background:rgba(0,0,0,0.3); padding:10px; height:300px; overflow-y:auto; font-family:'Share Tech Mono'; color:#00bcd4;"></div>
@@ -96,20 +97,15 @@
                 </div>
 
                 <div id="mod-cleanup" class="module-view">
-                    <h2 style="color: #7f8c8d;">Olay Yeri Temizliği</h2>
-                    <div style="border:1px solid #c0392b; padding:15px; border-radius:6px; margin-bottom:20px;">
-                        <h4 style="color:#c0392b;">Acil Temizlik Talebi</h4>
-                        <input type="text" id="clean-loc" class="input-dark" placeholder="Konum / Bölge">
-                        <input type="text" id="clean-type" class="input-dark" placeholder="Durum (Kanıt, Ceset, Araç)">
-                        <button class="btn-action btn-red" onclick="addNote('cleanup')">EKİP GÖNDER</button>
-                    </div>
+                    <h2 style="color: #7f8c8d;">Temizlik</h2>
+                    <input type="text" id="clean-loc" class="input-dark" placeholder="Konum">
+                    <button class="btn-action btn-red" onclick="addNote('cleanup')">EKİP GÖNDER</button>
                     <div id="list-cleanup"></div>
                 </div>
 
-                <div id="mod-intel" class="module-view"><h2>İstihbarat (Wraith)</h2><div id="list-intel">Modül Aktif...</div></div>
-                <div id="mod-blacklist" class="module-view"><h2>Kara Liste (Overseer)</h2><div id="list-blacklist">Modül Aktif...</div></div>
-                <div id="mod-diplo" class="module-view"><h2>Diplomasi</h2><div id="list-diplo">Modül Aktif...</div></div>
-                <div id="mod-hitlist" class="module-view"><h2>İnfaz Listesi</h2><div id="list-hitlist">Modül Aktif...</div></div>
+                <div id="mod-intel" class="module-view"><h2>İstihbarat</h2><div id="list-intel"></div></div>
+                <div id="mod-diplo" class="module-view"><h2>Diplomasi</h2><div id="list-diplo"></div></div>
+                <div id="mod-hitlist" class="module-view"><h2>İnfaz Listesi</h2><div id="list-hitlist"></div></div>
 
             </div>
         </div>
@@ -118,7 +114,6 @@
     <div id="modal-perm" class="modal-overlay">
         <div class="modal-box">
             <h3 style="color:#fff; margin-bottom:15px;">Yetki Ver: <span id="modal-username" style="color:#3498db;"></span></h3>
-            <p style="color:#666; font-size:0.8rem; margin-bottom:15px;">Özel görevlendirmeler için manuel yetki tanımlama.</p>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
                 <label><input type="checkbox" id="p_apps"> Başvuru Yönetimi</label>
                 <label><input type="checkbox" id="p_finance"> Kasa Erişimi</label>
@@ -155,7 +150,6 @@
         const auth = getAuth(app);
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
-        // --- YETKİ MATRİSİ (RESİMLERE GÖRE REVİZE EDİLDİ) ---
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
             'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
@@ -174,7 +168,6 @@
 
         let currentUser = null;
 
-        // AUTH
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 await checkUser(user.email);
@@ -192,15 +185,11 @@
         document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
 
         async function checkUser(email) {
-            // BOSS BACKDOOR
             if(email === "baron@visconti.family") {
                 setupSession("Kadir Baba", "THE SHROUD", true);
                 return;
             }
-            
-            // NORMAL USER CHECK
-            const q = query(collection(db, "basvurular"), where("systemEmail", "==", email));
-            // Demo için manuel giriş yapılabilir veya başvuru onaylandığında bu alan eklenmeli.
+            // Normal kullanıcı girişi kapalı (demo)
             alert("Sadece Baron girişi aktif. (baron@visconti.family)");
             signOut(auth);
         }
@@ -210,7 +199,6 @@
             document.getElementById('display-name').innerText = name.toUpperCase();
             document.getElementById('display-rank').innerText = rank;
             
-            // Rütbeye göre renk
             const rankEl = document.getElementById('display-rank');
             if(rank === 'THE SHROUD') rankEl.style.color = 'var(--gold)';
             if(rank === 'THE DIAMOND') rankEl.style.color = 'var(--diamond)';
@@ -219,17 +207,13 @@
             document.getElementById('main-interface').classList.remove('hidden');
             document.getElementById('main-interface').style.display = 'flex';
 
-            // Yetki Dağıtımı
-            const myPerms = PERMISSIONS[rank] || [];
-            
             if(rank === 'THE SHROUD') {
                 document.querySelectorAll('.restricted').forEach(el => el.classList.remove('restricted'));
             } else {
-                myPerms.forEach(p => {
+                (PERMISSIONS[rank] || []).forEach(p => {
                     document.querySelectorAll(`.role-${p}`).forEach(el => el.classList.remove('restricted'));
                 });
             }
-
             initListeners();
         }
 
@@ -239,69 +223,75 @@
             document.getElementById('mod-'+id).classList.add('active');
         };
 
-        // --- APP LOGIC (YENİ RÜTBELERLE) ---
         function initListeners() {
+            // BAŞVURULARI DİNLE
             onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
-                let html = '';
+                let htmlApps = '';
+                let htmlPersonnel = ''; // Yeni Personel Listesi
                 let pendingCount = 0;
+                
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
                     const id = docSnap.id;
-                    if(d.durum === 'Beklemede') pendingCount++;
-
-                    // RÜTBE SEÇİMİ (GÖRSELDEKİ HİYERARŞİ)
-                    const ranks = `
-                        <select id="rank-${id}" class="rank-select">
-                            <option value="">Rütbe Ata...</option>
-                            <option value="VISCONTI Aile Üyesi">VISCONTI Aile Üyesi</option>
-                            <option value="CLEANER">CLEANER</option>
-                            <option value="CADAVER">CADAVER</option>
-                            <option value="HARBINGER">HARBINGER</option>
-                            <option value="ORACLE">ORACLE</option>
-                            <option value="WRAITH">WRAITH</option>
-                            <option value="GRAVEDIGGER">GRAVEDIGGER</option>
-                            <option value="OVERSEER">OVERSEER</option>
-                            <option value="BLOODLINE">BLOODLINE</option>
-                            <option value="THE ARCHITECT">THE ARCHITECT</option>
-                            <option value="THE PRINCESS">THE PRINCESS</option>
-                            <option value="THE DIAMOND">THE DIAMOND</option>
-                        </select>
-                    `;
-
-                    let actions = '';
+                    
+                    // Bekleyenler Başvurulara
                     if(d.durum === 'Beklemede') {
-                        actions = `
+                        pendingCount++;
+                        const ranks = `
+                            <select id="rank-${id}" class="rank-select">
+                                <option value="">Rütbe Ata...</option>
+                                <option value="VISCONTI Aile Üyesi">VISCONTI Aile Üyesi</option>
+                                <option value="CLEANER">CLEANER</option>
+                                <option value="CADAVER">CADAVER</option>
+                                <option value="HARBINGER">HARBINGER</option>
+                                <option value="ORACLE">ORACLE</option>
+                                <option value="WRAITH">WRAITH</option>
+                                <option value="GRAVEDIGGER">GRAVEDIGGER</option>
+                                <option value="OVERSEER">OVERSEER</option>
+                                <option value="BLOODLINE">BLOODLINE</option>
+                                <option value="THE ARCHITECT">THE ARCHITECT</option>
+                                <option value="THE PRINCESS">THE PRINCESS</option>
+                                <option value="THE DIAMOND">THE DIAMOND</option>
+                            </select>
+                        `;
+                        const actions = `
                             <div class="action-bar">
                                 ${ranks}
                                 <button class="btn-action btn-green" onclick="window.decideApp('${id}', true)">ONAYLA</button>
                                 <button class="btn-action btn-red" onclick="window.decideApp('${id}', false)">REDDET</button>
                             </div>
                         `;
-                    } else {
-                        actions = `<div class="action-bar" style="color:#666;">İşlem: ${d.durum} | Rütbe: ${d.rank || '-'}</div>`;
+                        htmlApps += `
+                            <div class="app-card">
+                                <div class="app-header">
+                                    <strong style="color:#cfb53b;">${d.icName}</strong>
+                                    <span class="app-status status-${d.durum}">${d.durum}</span>
+                                </div>
+                                <div class="app-details"><span>Discord: ${d.discord}</span><span>Yaş: ${d.icAge}</span><button class="btn-action btn-blue" onclick="document.getElementById('story-${id}').style.display='block'">Hikaye</button></div>
+                                <div id="story-${id}" class="story-content">${d.story}</div>
+                                ${actions}
+                            </div>
+                        `;
+                    } 
+                    // Onaylananlar Personel Listesine
+                    else if(d.durum === 'Onaylandı') {
+                        htmlPersonnel += `
+                            <div class="personnel-row">
+                                <div class="p-info">
+                                    <span class="p-name">${d.icName}</span>
+                                    <span class="p-rank">${d.rank || 'Üye'}</span>
+                                </div>
+                                <button class="btn-action btn-blue" onclick="openPermModal('${d.icName}')">YAPILANDIR</button>
+                            </div>
+                        `;
                     }
-
-                    html += `
-                        <div class="app-card">
-                            <div class="app-header">
-                                <strong style="color:#cfb53b;">${d.icName}</strong>
-                                <span class="app-status status-${d.durum}">${d.durum}</span>
-                            </div>
-                            <div class="app-details">
-                                <span>Discord: ${d.discord}</span>
-                                <span>Yaş: ${d.icAge}</span>
-                                <button class="btn-action btn-blue" onclick="document.getElementById('story-${id}').style.display='block'">Hikaye</button>
-                            </div>
-                            <div id="story-${id}" class="story-content">${d.story}</div>
-                            ${actions}
-                        </div>
-                    `;
                 });
-                document.getElementById('app-list').innerHTML = html;
+
+                document.getElementById('app-list').innerHTML = htmlApps || '<p style="color:#666;">Bekleyen başvuru yok.</p>';
                 document.getElementById('app-count').innerText = pendingCount;
+                document.getElementById('personnel-list-container').innerHTML = htmlPersonnel || '<p style="color:#666;">Aktif personel bulunamadı.</p>';
             });
             
-            // Finans ve Diğer Modülleri Dinle (Basit Örnek)
             listenSimple('vom_finance', 'finance-list');
             listenSimple('vom_cyber', 'list-cyber');
             listenSimple('vom_cleanup', 'list-cleanup');
@@ -313,16 +303,12 @@
                 let h = '';
                 snap.forEach(d => {
                     const x = d.data();
-                    h += `<div style="border-bottom:1px solid #333; padding:5px; font-size:0.9rem;">
-                        <span style="color:var(--gold)">${x.user}:</span> ${x.info || x.desc} 
-                        ${x.amount ? `(${x.amount}$)` : ''}
-                    </div>`;
+                    h += `<div style="border-bottom:1px solid #333; padding:5px; font-size:0.9rem;"><span style="color:var(--gold)">${x.user}:</span> ${x.info || x.desc} ${x.amount ? `(${x.amount}$)` : ''}</div>`;
                 });
                 document.getElementById(elId).innerHTML = h || 'Veri yok.';
             });
         }
 
-        // --- İŞLEMLER ---
         window.decideApp = async (id, isApproved) => {
             const rankVal = document.getElementById(`rank-${id}`).value;
             if(isApproved && !rankVal) { alert("Lütfen rütbe seçin!"); return; }
@@ -336,7 +322,6 @@
                 processedAt: serverTimestamp()
             });
 
-            // WEBHOOK
             const msg = isApproved ? `✅ **KABUL EDİLDİ**\nYeni Üye: **${rankVal}**` : `⛔ **REDDEDİLDİ**`;
             await fetch(WEBHOOK_URL, {
                 method: "POST", headers: { "Content-Type": "application/json" },
@@ -351,16 +336,11 @@
 
         window.addNote = async (type) => {
             let data = { user: currentUser, date: serverTimestamp() };
-            if(type === 'cyber') {
-                data.info = `HEDEF: ${document.getElementById('cyber-target').value} | BİLGİ: ${document.getElementById('cyber-info').value}`;
-            } else if(type === 'cleanup') {
-                data.info = `BÖLGE: ${document.getElementById('clean-loc').value} | TÜR: ${document.getElementById('clean-type').value}`;
-            } else if(type === 'strategy') {
-                data.info = document.getElementById('strat-note').value;
-            }
+            if(type === 'cyber') data.info = `HEDEF: ${document.getElementById('cyber-target').value} | BİLGİ: ${document.getElementById('cyber-info').value}`;
+            else if(type === 'cleanup') data.info = `BÖLGE: ${document.getElementById('clean-loc').value}`;
+            else if(type === 'strategy') data.info = document.getElementById('strat-note').value;
             
             await addDoc(collection(db, `vom_${type}`), data);
-            alert("Giriş yapıldı.");
         };
 
         window.addFinance = async () => {
@@ -371,11 +351,9 @@
             await addDoc(collection(db, "vom_finance"), { desc, amount: am, type, user: currentUser, date: serverTimestamp() });
         };
 
-        // --- PERM MODAL ---
-        window.openPermModal = () => {
-            const u = document.getElementById('perm-target').value;
-            if(!u) return alert("İsim girin");
-            document.getElementById('modal-username').innerText = u;
+        // --- YETKİ MODALI (YENİ SİSTEM) ---
+        window.openPermModal = (username) => {
+            document.getElementById('modal-username').innerText = username;
             document.getElementById('modal-perm').style.display = 'flex';
         };
 
@@ -393,7 +371,6 @@
             alert("Yetkiler güncellendi.");
             document.getElementById('modal-perm').style.display = 'none';
         };
-
     </script>
 </body>
 </html>

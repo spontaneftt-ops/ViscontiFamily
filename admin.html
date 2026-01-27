@@ -113,9 +113,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // FIREBASE CONFIG (Seninkilerle aynı)
         const firebaseConfig = {
             apiKey: "AIzaSyCdoh5yMYMpnmddGpCzXyQtDhSnXo8cLHg",
             authDomain: "veltora.firebaseapp.com",
@@ -131,12 +130,14 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         
+        // --- İKİNCİL UYGULAMA (Kullanıcı oluştururken Admin'i log-out yapmamak için) ---
+        const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+        const secondaryAuth = getAuth(secondaryApp);
+
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
 
-        // --- RÜTBE LİSTESİ (RESİMLERE GÖRE) ---
-        // Kadir, buradaki renk kodlarını resimlerdeki renklere yakın ayarladım.
         const VISCONTI_RANKS = [
-            { name: "Visconti Aile Üyesi", color: "#e74c3c", icon: "🔴" }, // Varsayılan
+            { name: "Visconti Aile Üyesi", color: "#e74c3c", icon: "🔴" }, 
             { name: "THE SHROUD", color: "#d4af37", icon: "👑" },
             { name: "THE DIAMOND", color: "#3498db", icon: "💎" },
             { name: "THE PRINCESS", color: "#e91e63", icon: "👁️" },
@@ -169,7 +170,7 @@
         // LOGIN / LOGOUT
         document.getElementById('loginBtn').addEventListener('click', () => {
             signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
-                .catch((err) => document.getElementById('loginError').innerText = "Hatalı Giriş");
+                .catch((err) => document.getElementById('loginError').innerText = "Hatalı Giriş: " + err.message);
         });
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
@@ -177,14 +178,13 @@
         window.switchTab = (tabName) => {
             document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(`view-${tabName}`).classList.add('active');
             event.target.classList.add('active');
         };
 
         async function refreshAllData() {
-            loadApplications(); // Bekleyenler
-            loadMembers();      // Onaylanmış Üyeler
+            loadApplications(); 
+            loadMembers();      
         }
 
         // --- 1. SEKMES: BAŞVURULAR (BEKLEYENLER) ---
@@ -193,7 +193,6 @@
             grid.innerHTML = '<p style="color:#666">Yükleniyor...</p>';
             
             try {
-                // Sadece beklemede olanları getir
                 const q = query(collection(db, "basvurular"), where("durum", "==", "Beklemede"));
                 const querySnapshot = await getDocs(q);
                 grid.innerHTML = '';
@@ -203,7 +202,6 @@
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const docId = docSnap.id;
-                    
                     const div = document.createElement('div');
                     div.className = 'app-card';
                     div.innerHTML = `
@@ -239,9 +237,8 @@
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const docId = docSnap.id;
-                    const currentRank = data.rank || "Visconti Aile Üyesi"; // Varsayılan rütbe
+                    const currentRank = data.rank || "Visconti Aile Üyesi";
 
-                    // Rütbe Dropdown HTML Oluşturma
                     let rankOptions = '';
                     VISCONTI_RANKS.forEach(r => {
                         const isSelected = r.name === currentRank ? 'selected' : '';
@@ -250,7 +247,7 @@
 
                     const div = document.createElement('div');
                     div.className = 'app-card member-card';
-                    div.style.borderColor = getRankColor(currentRank); // Kartın kenarını rütbe rengi yap
+                    div.style.borderColor = getRankColor(currentRank);
                     
                     div.innerHTML = `
                         <div class="app-header">
@@ -258,10 +255,8 @@
                             <i class="fas fa-check-circle" style="color: #2ecc71;"></i>
                         </div>
                         <div style="color:#fff; font-weight:bold;">${data.icName}</div>
-                        <div style="color:#666; font-size:0.85rem; margin-bottom:10px;">Yaş: ${data.icAge}</div>
+                        <div style="color:#666; font-size:0.85rem; margin-bottom:10px;">${data.systemEmail ? data.systemEmail : 'E-posta tanımlı değil'}</div>
                         
-                        <div class="story-box" style="max-height:80px;">${data.story.substring(0, 150)}...</div>
-
                         <div class="rank-selector-container">
                             <label class="rank-label">Rütbe / Atama</label>
                             <select id="rank-${docId}" class="rank-select">
@@ -271,7 +266,6 @@
                                 <i class="fas fa-save"></i> Rütbeyi Kaydet
                             </button>
                         </div>
-                        
                         <i class="fas fa-user-slash btn-delete-icon" onclick="window.kickMember('${docId}', '${data.icName}')" title="Aileden At"></i>
                     `;
                     grid.appendChild(div);
@@ -287,16 +281,39 @@
         // --- GÜNCELLEME İŞLEMLERİ ---
 
         window.approveApp = async (id, discord, icName) => {
-            if(!confirm(`${icName} başvurusunu onaylıyor musun?`)) return;
+            if(!confirm(`${icName} başvurusunu onaylayıp SİSTEM GİRİŞ BİLGİLERİNİ göndermek istiyor musun?`)) return;
+            
+            // 1. Rastgele Şifre ve E-posta Oluştur
+            const randomPass = Math.random().toString(36).slice(-8); // Örn: 8 karakterli rastgele şifre
+            // E-posta formatı: isimsoyisim_RastgeleSayi@visconti.family
+            const safeName = icName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+            const generatedEmail = `${safeName}${Math.floor(Math.random() * 100)}@visconti.family`;
+
             try {
-                // Onaylanınca varsayılan rütbeyi de ekliyoruz
+                // 2. Firebase Auth'da Kullanıcı Oluştur (Secondary App kullanarak, böylece Admin çıkış yapmaz)
+                await createUserWithEmailAndPassword(secondaryAuth, generatedEmail, randomPass);
+
+                // 3. Veritabanını Güncelle
                 await updateDoc(doc(db, "basvurular", id), { 
                     durum: "Onaylandı",
-                    rank: "Visconti Aile Üyesi"
+                    rank: "Visconti Aile Üyesi",
+                    systemEmail: generatedEmail
                 });
-                await sendToDiscord({ discord, icName }, "Onaylandı");
+
+                // 4. Discord'a Bilgileri Gönder
+                await sendToDiscord({ discord, icName, generatedEmail, randomPass }, "Onaylandı");
+                
+                alert(`Kullanıcı oluşturuldu: ${generatedEmail}`);
                 refreshAllData();
-            } catch (err) { alert("Hata: " + err.message); }
+
+            } catch (err) { 
+                console.error(err);
+                if(err.code === 'auth/email-already-in-use') {
+                    alert("Bu isimde bir kullanıcı zaten var. Lütfen tekrar deneyin (rastgele sayı değişecektir).");
+                } else {
+                    alert("Hesap oluşturma hatası: " + err.message); 
+                }
+            }
         };
 
         window.rejectApp = async (id, discord, icName) => {
@@ -311,19 +328,15 @@
         window.updateMemberRank = async (docId, discord, icName) => {
             const select = document.getElementById(`rank-${docId}`);
             const newRank = select.value;
-            
             const btn = select.nextElementSibling;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
                 await updateDoc(doc(db, "basvurular", docId), { rank: newRank });
-                await sendRankUpdateToDiscord(discord, icName, newRank); // Yeni Webhook Bildirimi
+                await sendRankUpdateToDiscord(discord, icName, newRank);
                 alert(`${icName} artık: ${newRank}`);
                 refreshAllData();
-            } catch (err) {
-                console.error(err);
-                alert("Güncelleme başarısız.");
-            }
+            } catch (err) { console.error(err); alert("Güncelleme başarısız."); }
         };
 
         window.kickMember = async (id, icName) => {
@@ -347,9 +360,13 @@
             if (status === "Onaylandı") {
                 embedData = {
                     title: "⚜️ VISCONTI KONSEY KARARI: KABUL",
-                    desc: `**${data.icName}** aileye kabul edilmiştir. Rütbesi verilene kadar gözetim altındadır.`,
+                    desc: `**${data.icName}** aileye kabul edilmiştir. Sistem giriş bilgileriniz aşağıdadır.\n\n⚠️ *Bu bilgileri kimseyle paylaşmayınız.*`,
                     color: 3066993,
-                    fields: [{ name: "Kişi", value: `<@${data.discord}>`, inline: true }, { name: "Durum", value: "Aile Üyesi", inline: true }]
+                    fields: [
+                        { name: "Kişi", value: `<@${data.discord}>`, inline: true },
+                        { name: "Durum", value: "Aile Üyesi", inline: true },
+                        { name: "🔐 GİZLİ ERİŞİM KARTI", value: `**E-posta:** ${data.generatedEmail}\n**Şifre:** ||${data.randomPass}||`, inline: false }
+                    ]
                 };
             } else {
                 embedData = {
@@ -359,15 +376,12 @@
                     fields: [{ name: "Kişi", value: `<@${data.discord}>`, inline: true }]
                 };
             }
-            // Fetch isteği aynı...
             await postWebhook(embedData);
         }
 
         async function sendRankUpdateToDiscord(discord, icName, newRank) {
-            // Rütbe rengini bul
             const rankObj = VISCONTI_RANKS.find(r => r.name === newRank);
             const rankColorInt = parseInt(rankObj.color.replace("#", ""), 16);
-
             const embedData = {
                 title: "⚖️ VISCONTI RÜTBE ATAMASI",
                 desc: `Konsey kararıyla rütbe değişikliği yapılmıştır.\n\n👤 **İsim:** ${icName}\n🔰 **Yeni Rütbe:** ${newRank}`,

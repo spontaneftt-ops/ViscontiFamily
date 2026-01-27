@@ -32,7 +32,6 @@
         <div class="workspace">
             <div class="sidebar">
                 <div class="module-btn active" onclick="showModule('dashboard')"><i class="fas fa-home"></i> Ana Panel</div>
-                
                 <div class="module-btn restricted role-apps" onclick="showModule('apps')"><i class="fas fa-folder-open"></i> Başvurular <span id="app-count" style="background:#c0392b; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span></div>
                 <div class="module-btn restricted role-perms" onclick="showModule('perms')"><i class="fas fa-users-cog"></i> Personel & Yetkiler</div>
                 
@@ -42,6 +41,7 @@
                 <div class="module-btn restricted role-cyber" onclick="showModule('cyber')"><i class="fas fa-network-wired"></i> Siber Ağ (Oracle)</div>
                 <div class="module-btn restricted role-intel" onclick="showModule('intel')"><i class="fas fa-user-secret"></i> İstihbarat (Wraith)</div>
                 <div class="module-btn restricted role-hitlist" onclick="showModule('hitlist')"><i class="fas fa-crosshairs"></i> İnfaz Listesi</div>
+                <div class="module-btn restricted role-blacklist" onclick="showModule('blacklist')"><i class="fas fa-gavel"></i> Blacklist (Overseer)</div>
                 <div class="module-btn restricted role-clean" onclick="showModule('cleanup')"><i class="fas fa-biohazard"></i> Temizlik (Cleaner)</div>
             </div>
 
@@ -49,63 +49,99 @@
                 
                 <div id="mod-dashboard" class="module-view active">
                     <h2 style="color: #cfb53b; border-bottom: 1px solid #333; padding-bottom: 10px;">Hoş Geldin</h2>
-                    <p>Visconti Mainframe aktif.</p>
+                    <p>Visconti Mainframe aktif. Sol menüden işlemleri gerçekleştirebilirsin.</p>
                 </div>
 
                 <div id="mod-apps" class="module-view">
-                    <h2 style="color: #e91e63;">Başvuru & İK Merkezi</h2>
+                    <h2 style="color: #e91e63;">Başvuru Merkezi</h2>
                     <div id="app-list">Yükleniyor...</div>
                 </div>
 
                 <div id="mod-perms" class="module-view">
-                    <h2 style="color: #9b59b6;">Aktif Personel Listesi</h2>
-                    <p style="margin-bottom: 20px; font-size: 0.9rem; color: #666;">Aileye kabul edilmiş üyelerin yetkilerini buradan yapılandır.</p>
-                    
-                    <div id="personnel-list-container" class="personnel-list-container">
-                        Yükleniyor...
-                    </div>
+                    <h2 style="color: #9b59b6;">Aktif Personel</h2>
+                    <div id="personnel-list-container">Yükleniyor...</div>
                 </div>
 
                 <div id="mod-finance" class="module-view">
-                    <h2 style="color: #3498db;">Hazine Yönetimi</h2>
+                    <h2 style="color: #3498db;">Hazine</h2>
                     <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                         <input type="text" id="fin-desc" class="input-dark" placeholder="Açıklama">
                         <input type="number" id="fin-amount" class="input-dark" placeholder="Miktar">
                         <select id="fin-type" class="input-dark"><option>GELİR</option><option>GİDER</option></select>
                         <button class="btn-action btn-green" onclick="addFinance()">KAYDET</button>
                     </div>
-                    <div id="finance-list"></div>
+                    <div id="list-finance"></div>
                 </div>
 
                 <div id="mod-strategy" class="module-view">
-                    <h2 style="color: #2ecc71;">Bölge Kontrol & İnşaat</h2>
+                    <h2 style="color: #2ecc71;">Bölge & İnşaat</h2>
                     <textarea id="strat-note" class="input-dark" rows="5" placeholder="Not..."></textarea>
-                    <button class="btn-action btn-green" onclick="addNote('strategy')">PLANI YAYINLA</button>
+                    <button class="btn-action btn-green" onclick="addNote('strategy', 'strat-note')">YAYINLA</button>
                     <div id="list-strategy" style="margin-top:20px;"></div>
                 </div>
 
                 <div id="mod-cyber" class="module-view">
-                    <h2 style="color: #00bcd4;">Oracle Siber Ağı</h2>
+                    <h2 style="color: #00bcd4;">Oracle Siber</h2>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                         <div>
                             <input type="text" id="cyber-target" class="input-dark" placeholder="IP / Kişi">
                             <textarea id="cyber-info" class="input-dark" rows="3" placeholder="Bilgi..."></textarea>
-                            <button class="btn-action btn-blue" onclick="addNote('cyber')">VERİ GİRİŞİ</button>
+                            <button class="btn-action btn-blue" onclick="addCyber()">VERİ GİRİŞİ</button>
                         </div>
-                        <div id="list-cyber" style="background:rgba(0,0,0,0.3); padding:10px; height:300px; overflow-y:auto; font-family:'Share Tech Mono'; color:#00bcd4;"></div>
+                        <div id="list-cyber" style="background:rgba(0,0,0,0.3); padding:10px; height:300px; overflow-y:auto;"></div>
                     </div>
+                </div>
+
+                <div id="mod-intel" class="module-view">
+                    <h2 style="color: #bdc3c7;">İstihbarat (Wraith)</h2>
+                    <input type="text" id="intel-target" class="input-dark" placeholder="Hedef Kişi/Kurum">
+                    <textarea id="intel-info" class="input-dark" rows="3" placeholder="Toplanan Bilgi..."></textarea>
+                    <button class="btn-action btn-green" onclick="addIntel()">RAPORLA</button>
+                    <div id="list-intel" style="margin-top:20px;"></div>
+                </div>
+
+                <div id="mod-diplo" class="module-view">
+                    <h2 style="color: #e67e22;">Diplomasi</h2>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="diplo-gang" class="input-dark" placeholder="Oluşum Adı">
+                        <select id="diplo-status" class="input-dark">
+                            <option value="Dost 🟢">Dost</option>
+                            <option value="Nötr ⚪">Nötr</option>
+                            <option value="Düşman 🔴">Düşman</option>
+                        </select>
+                        <button class="btn-action btn-green" onclick="addDiplo()">GÜNCELLE</button>
+                    </div>
+                    <div id="list-diplo" style="margin-top:20px;"></div>
+                </div>
+
+                <div id="mod-hitlist" class="module-view">
+                    <h2 style="color: #c0392b;">İnfaz Listesi</h2>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="hit-target" class="input-dark" placeholder="Hedef Adı">
+                        <select id="hit-prio" class="input-dark">
+                            <option value="Düşük">Düşük Öncelik</option>
+                            <option value="Yüksek">Yüksek Öncelik</option>
+                            <option value="ACİL">ACİL İNFAZ</option>
+                        </select>
+                        <button class="btn-action btn-red" onclick="addHit()">LİSTEYE EKLE</button>
+                    </div>
+                    <div id="list-hitlist" style="margin-top:20px;"></div>
+                </div>
+
+                <div id="mod-blacklist" class="module-view">
+                    <h2 style="color: #95a5a6;">Kara Liste (Overseer)</h2>
+                    <input type="text" id="bl-name" class="input-dark" placeholder="Kişi Adı">
+                    <input type="text" id="bl-reason" class="input-dark" placeholder="Sebep / Suç">
+                    <button class="btn-action btn-red" onclick="addBlacklist()">SİCİLE İŞLE</button>
+                    <div id="list-blacklist" style="margin-top:20px;"></div>
                 </div>
 
                 <div id="mod-cleanup" class="module-view">
                     <h2 style="color: #7f8c8d;">Temizlik</h2>
                     <input type="text" id="clean-loc" class="input-dark" placeholder="Konum">
-                    <button class="btn-action btn-red" onclick="addNote('cleanup')">EKİP GÖNDER</button>
-                    <div id="list-cleanup"></div>
+                    <button class="btn-action btn-red" onclick="addNote('cleanup', 'clean-loc')">EKİP GÖNDER</button>
+                    <div id="list-cleanup" style="margin-top:20px;"></div>
                 </div>
-
-                <div id="mod-intel" class="module-view"><h2>İstihbarat</h2><div id="list-intel"></div></div>
-                <div id="mod-diplo" class="module-view"><h2>Diplomasi</h2><div id="list-diplo"></div></div>
-                <div id="mod-hitlist" class="module-view"><h2>İnfaz Listesi</h2><div id="list-hitlist"></div></div>
 
             </div>
         </div>
@@ -115,12 +151,15 @@
         <div class="modal-box">
             <h3 style="color:#fff; margin-bottom:15px;">Yetki Ver: <span id="modal-username" style="color:#3498db;"></span></h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                <label><input type="checkbox" id="p_apps"> Başvuru Yönetimi</label>
-                <label><input type="checkbox" id="p_finance"> Kasa Erişimi</label>
-                <label><input type="checkbox" id="p_strategy"> Strateji (Architect)</label>
-                <label><input type="checkbox" id="p_cyber"> Siber Ağ (Oracle)</label>
-                <label><input type="checkbox" id="p_clean"> Temizlik (Cleaner)</label>
-                <label><input type="checkbox" id="p_admin" style="accent-color:red;"> <span style="color:red;">BOSS Paneli</span></label>
+                <label><input type="checkbox" id="p_apps"> Başvuru</label>
+                <label><input type="checkbox" id="p_finance"> Kasa</label>
+                <label><input type="checkbox" id="p_strategy"> Strateji</label>
+                <label><input type="checkbox" id="p_cyber"> Siber</label>
+                <label><input type="checkbox" id="p_clean"> Temizlik</label>
+                <label><input type="checkbox" id="p_intel"> İstihbarat</label>
+                <label><input type="checkbox" id="p_hitlist"> İnfaz</label>
+                <label><input type="checkbox" id="p_diplo"> Diplomasi</label>
+                <label><input type="checkbox" id="p_admin" style="accent-color:red;"> <span style="color:red;">BOSS</span></label>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-action btn-green" onclick="savePerms()" style="flex:1;">KAYDET</button>
@@ -131,7 +170,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -148,8 +187,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const WEBHOOK_URL = "https://discord.com/api/webhooks/1465195587577057454/Kk3hwNtZ8STa8NqOMcyk34E3Qig9ZU2Mf4stZ2eqZdzWvv5sibDw1tSuwWVsWM7qGaoT";
+        
+        let currentUser = null;
 
+        // ROL TANIMLARI
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
             'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
@@ -161,17 +202,14 @@
             'WRAITH': ['intel'],
             'ORACLE': ['cyber', 'intel'],
             'HARBINGER': ['diplo'],
-            'CADAVER': [],
             'CLEANER': ['clean'],
             'VISCONTI Aile Üyesi': []
         };
 
-        let currentUser = null;
-
+        // --- AUTH ---
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                await checkUser(user.email);
-            } else {
+            if (user) await checkUser(user.email);
+            else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('main-interface').classList.add('hidden');
             }
@@ -189,7 +227,6 @@
                 setupSession("Kadir Baba", "THE SHROUD", true);
                 return;
             }
-            // Normal kullanıcı girişi kapalı (demo)
             alert("Sadece Baron girişi aktif. (baron@visconti.family)");
             signOut(auth);
         }
@@ -199,9 +236,7 @@
             document.getElementById('display-name').innerText = name.toUpperCase();
             document.getElementById('display-rank').innerText = rank;
             
-            const rankEl = document.getElementById('display-rank');
-            if(rank === 'THE SHROUD') rankEl.style.color = 'var(--gold)';
-            if(rank === 'THE DIAMOND') rankEl.style.color = 'var(--diamond)';
+            if(rank === 'THE SHROUD') document.getElementById('display-rank').style.color = 'var(--gold)';
             
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-interface').classList.remove('hidden');
@@ -223,126 +258,14 @@
             document.getElementById('mod-'+id).classList.add('active');
         };
 
-        function initListeners() {
-            // BAŞVURULARI DİNLE
-            onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
-                let htmlApps = '';
-                let htmlPersonnel = ''; // Yeni Personel Listesi
-                let pendingCount = 0;
-                
-                snap.forEach(docSnap => {
-                    const d = docSnap.data();
-                    const id = docSnap.id;
-                    
-                    // Bekleyenler Başvurulara
-                    if(d.durum === 'Beklemede') {
-                        pendingCount++;
-                        const ranks = `
-                            <select id="rank-${id}" class="rank-select">
-                                <option value="">Rütbe Ata...</option>
-                                <option value="VISCONTI Aile Üyesi">VISCONTI Aile Üyesi</option>
-                                <option value="CLEANER">CLEANER</option>
-                                <option value="CADAVER">CADAVER</option>
-                                <option value="HARBINGER">HARBINGER</option>
-                                <option value="ORACLE">ORACLE</option>
-                                <option value="WRAITH">WRAITH</option>
-                                <option value="GRAVEDIGGER">GRAVEDIGGER</option>
-                                <option value="OVERSEER">OVERSEER</option>
-                                <option value="BLOODLINE">BLOODLINE</option>
-                                <option value="THE ARCHITECT">THE ARCHITECT</option>
-                                <option value="THE PRINCESS">THE PRINCESS</option>
-                                <option value="THE DIAMOND">THE DIAMOND</option>
-                            </select>
-                        `;
-                        const actions = `
-                            <div class="action-bar">
-                                ${ranks}
-                                <button class="btn-action btn-green" onclick="window.decideApp('${id}', true)">ONAYLA</button>
-                                <button class="btn-action btn-red" onclick="window.decideApp('${id}', false)">REDDET</button>
-                            </div>
-                        `;
-                        htmlApps += `
-                            <div class="app-card">
-                                <div class="app-header">
-                                    <strong style="color:#cfb53b;">${d.icName}</strong>
-                                    <span class="app-status status-${d.durum}">${d.durum}</span>
-                                </div>
-                                <div class="app-details"><span>Discord: ${d.discord}</span><span>Yaş: ${d.icAge}</span><button class="btn-action btn-blue" onclick="document.getElementById('story-${id}').style.display='block'">Hikaye</button></div>
-                                <div id="story-${id}" class="story-content">${d.story}</div>
-                                ${actions}
-                            </div>
-                        `;
-                    } 
-                    // Onaylananlar Personel Listesine
-                    else if(d.durum === 'Onaylandı') {
-                        htmlPersonnel += `
-                            <div class="personnel-row">
-                                <div class="p-info">
-                                    <span class="p-name">${d.icName}</span>
-                                    <span class="p-rank">${d.rank || 'Üye'}</span>
-                                </div>
-                                <button class="btn-action btn-blue" onclick="openPermModal('${d.icName}')">YAPILANDIR</button>
-                            </div>
-                        `;
-                    }
-                });
-
-                document.getElementById('app-list').innerHTML = htmlApps || '<p style="color:#666;">Bekleyen başvuru yok.</p>';
-                document.getElementById('app-count').innerText = pendingCount;
-                document.getElementById('personnel-list-container').innerHTML = htmlPersonnel || '<p style="color:#666;">Aktif personel bulunamadı.</p>';
-            });
-            
-            listenSimple('vom_finance', 'finance-list');
-            listenSimple('vom_cyber', 'list-cyber');
-            listenSimple('vom_cleanup', 'list-cleanup');
-            listenSimple('vom_strategy', 'list-strategy');
+        // --- GLOBAL SİLME FONKSİYONU ---
+        window.deleteItem = async (collectionName, docId) => {
+            if(confirm("Bu kaydı kalıcı olarak silmek istediğine emin misin?")) {
+                await deleteDoc(doc(db, collectionName, docId));
+            }
         }
 
-        function listenSimple(coll, elId) {
-            onSnapshot(query(collection(db, coll), orderBy("date", "desc")), (snap) => {
-                let h = '';
-                snap.forEach(d => {
-                    const x = d.data();
-                    h += `<div style="border-bottom:1px solid #333; padding:5px; font-size:0.9rem;"><span style="color:var(--gold)">${x.user}:</span> ${x.info || x.desc} ${x.amount ? `(${x.amount}$)` : ''}</div>`;
-                });
-                document.getElementById(elId).innerHTML = h || 'Veri yok.';
-            });
-        }
-
-        window.decideApp = async (id, isApproved) => {
-            const rankVal = document.getElementById(`rank-${id}`).value;
-            if(isApproved && !rankVal) { alert("Lütfen rütbe seçin!"); return; }
-
-            const status = isApproved ? "Onaylandı" : "Reddedildi";
-            
-            await updateDoc(doc(db, "basvurular", id), {
-                durum: status,
-                rank: isApproved ? rankVal : "Reddedildi",
-                processedBy: currentUser,
-                processedAt: serverTimestamp()
-            });
-
-            const msg = isApproved ? `✅ **KABUL EDİLDİ**\nYeni Üye: **${rankVal}**` : `⛔ **REDDEDİLDİ**`;
-            await fetch(WEBHOOK_URL, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: "V.O.M Yönetim",
-                    avatar_url: "https://raw.githubusercontent.com/baron/visconti/main/Visconti.jpg",
-                    embeds: [{ title: "Başvuru Sonucu", description: msg, color: isApproved ? 3066993 : 15158332 }]
-                })
-            });
-            alert("İşlem tamam.");
-        };
-
-        window.addNote = async (type) => {
-            let data = { user: currentUser, date: serverTimestamp() };
-            if(type === 'cyber') data.info = `HEDEF: ${document.getElementById('cyber-target').value} | BİLGİ: ${document.getElementById('cyber-info').value}`;
-            else if(type === 'cleanup') data.info = `BÖLGE: ${document.getElementById('clean-loc').value}`;
-            else if(type === 'strategy') data.info = document.getElementById('strat-note').value;
-            
-            await addDoc(collection(db, `vom_${type}`), data);
-        };
-
+        // --- DATA EKLEME FONKSİYONLARI ---
         window.addFinance = async () => {
             const desc = document.getElementById('fin-desc').value;
             const am = document.getElementById('fin-amount').value;
@@ -351,20 +274,128 @@
             await addDoc(collection(db, "vom_finance"), { desc, amount: am, type, user: currentUser, date: serverTimestamp() });
         };
 
-        // --- YETKİ MODALI (YENİ SİSTEM) ---
-        window.openPermModal = (username) => {
-            document.getElementById('modal-username').innerText = username;
-            document.getElementById('modal-perm').style.display = 'flex';
+        window.addNote = async (type, inputId) => {
+            const info = document.getElementById(inputId).value;
+            if(!info) return;
+            await addDoc(collection(db, `vom_${type}`), { info, user: currentUser, date: serverTimestamp() });
+            document.getElementById(inputId).value = "";
         };
 
+        window.addCyber = async () => {
+            const target = document.getElementById('cyber-target').value;
+            const info = document.getElementById('cyber-info').value;
+            if(!target) return;
+            await addDoc(collection(db, "vom_cyber"), { info: `HEDEF: ${target} | ${info}`, user: currentUser, date: serverTimestamp() });
+        };
+
+        // YENİ EKLEME FONKSİYONLARI
+        window.addIntel = async () => {
+            const target = document.getElementById('intel-target').value;
+            const info = document.getElementById('intel-info').value;
+            if(!target) return;
+            await addDoc(collection(db, "vom_intel"), { info: `HEDEF: ${target} | BİLGİ: ${info}`, user: currentUser, date: serverTimestamp() });
+            document.getElementById('intel-target').value = ""; document.getElementById('intel-info').value = "";
+        };
+
+        window.addDiplo = async () => {
+            const gang = document.getElementById('diplo-gang').value;
+            const status = document.getElementById('diplo-status').value;
+            if(!gang) return;
+            await addDoc(collection(db, "vom_diplo"), { info: `OLUŞUM: ${gang} | DURUM: ${status}`, user: currentUser, date: serverTimestamp() });
+        };
+
+        window.addHit = async () => {
+            const target = document.getElementById('hit-target').value;
+            const prio = document.getElementById('hit-prio').value;
+            if(!target) return;
+            await addDoc(collection(db, "vom_hitlist"), { info: `HEDEF: ${target} | ÖNCELİK: ${prio}`, user: currentUser, date: serverTimestamp() });
+        };
+
+        window.addBlacklist = async () => {
+            const name = document.getElementById('bl-name').value;
+            const reason = document.getElementById('bl-reason').value;
+            if(!name) return;
+            await addDoc(collection(db, "vom_blacklist"), { info: `KİŞİ: ${name} | SUÇ: ${reason}`, user: currentUser, date: serverTimestamp() });
+        };
+
+        // --- LİSTENERLAR ---
+        function initListeners() {
+            // BAŞVURULAR & PERSONEL
+            onSnapshot(query(collection(db, "basvurular"), orderBy("tarih", "desc")), (snap) => {
+                let htmlApps = '', htmlPersonnel = '', pendingCount = 0;
+                snap.forEach(d => {
+                    const data = d.data();
+                    const id = d.id;
+                    if(data.durum === 'Beklemede') {
+                        pendingCount++;
+                        // Başvuru HTML (Aynı kalıyor)
+                        htmlApps += `<div class="app-card"><div class="app-header"><strong style="color:#cfb53b;">${data.icName}</strong><span class="app-status status-Beklemede">Beklemede</span></div>
+                        <div class="app-details"><span>DC: ${data.discord}</span><span>Yaş: ${data.icAge}</span><button class="btn-action btn-blue" onclick="document.getElementById('story-${id}').style.display='block'">Hikaye</button></div>
+                        <div id="story-${id}" class="story-content">${data.story}</div>
+                        <div class="action-bar"><select id="rank-${id}" class="rank-select"><option value="">Seç...</option><option value="VISCONTI Aile Üyesi">Üye</option><option value="THE DIAMOND">Diamond</option></select>
+                        <button class="btn-action btn-green" onclick="window.decideApp('${id}', true)">ONAYLA</button><button class="btn-action btn-red" onclick="window.decideApp('${id}', false)">REDDET</button></div></div>`;
+                    } else if(data.durum === 'Onaylandı') {
+                        htmlPersonnel += `<div class="list-item"><div class="list-content"><span class="list-user">${data.icName}</span> ${data.rank}</div><button class="btn-action btn-blue" onclick="openPermModal('${data.icName}')">YETKİ</button></div>`;
+                    }
+                });
+                document.getElementById('app-list').innerHTML = htmlApps || 'Bekleyen yok.';
+                document.getElementById('app-count').innerText = pendingCount;
+                document.getElementById('personnel-list-container').innerHTML = htmlPersonnel || 'Personel yok.';
+            });
+
+            // MODÜL LİSTELERİ (HEPSİ SİLME BUTONLU)
+            listenSimple('vom_finance', 'list-finance');
+            listenSimple('vom_strategy', 'list-strategy');
+            listenSimple('vom_cyber', 'list-cyber');
+            listenSimple('vom_cleanup', 'list-cleanup');
+            listenSimple('vom_intel', 'list-intel');
+            listenSimple('vom_diplo', 'list-diplo');
+            listenSimple('vom_hitlist', 'list-hitlist');
+            listenSimple('vom_blacklist', 'list-blacklist');
+        }
+
+        function listenSimple(collName, elId) {
+            onSnapshot(query(collection(db, collName), orderBy("date", "desc")), (snap) => {
+                let h = '';
+                snap.forEach(d => {
+                    const x = d.data();
+                    const id = d.id;
+                    let content = x.info || x.desc;
+                    if(x.amount) content += ` (${x.amount}$) [${x.type}]`;
+                    
+                    h += `
+                        <div class="list-item">
+                            <div class="list-content">
+                                <span class="list-user">${x.user}:</span> ${content}
+                            </div>
+                            <button class="btn-delete" onclick="deleteItem('${collName}', '${id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                });
+                document.getElementById(elId).innerHTML = h || '<span style="color:#444; font-size:0.8rem;">Kayıt yok.</span>';
+            });
+        }
+
+        // Başvuru Karar Fonksiyonu
+        window.decideApp = async (id, isApproved) => {
+            const rankVal = document.getElementById(`rank-${id}`).value;
+            if(isApproved && !rankVal) { alert("Rütbe seçin!"); return; }
+            await updateDoc(doc(db, "basvurular", id), { durum: isApproved ? "Onaylandı" : "Reddedildi", rank: isApproved ? rankVal : "Red", processedAt: serverTimestamp() });
+        };
+
+        // Yetki Modal
+        window.openPermModal = (u) => { document.getElementById('modal-username').innerText = u; document.getElementById('modal-perm').style.display = 'flex'; };
         window.savePerms = async () => {
             const u = document.getElementById('modal-username').innerText;
-            const p = {
-                apps: document.getElementById('p_apps').checked,
+            const p = { 
+                apps: document.getElementById('p_apps').checked, 
                 finance: document.getElementById('p_finance').checked,
                 strategy: document.getElementById('p_strategy').checked,
                 cyber: document.getElementById('p_cyber').checked,
                 clean: document.getElementById('p_clean').checked,
+                intel: document.getElementById('p_intel').checked,
+                hitlist: document.getElementById('p_hitlist').checked,
+                diplo: document.getElementById('p_diplo').checked,
                 admin: document.getElementById('p_admin').checked
             };
             await setDoc(doc(db, "vom_permissions", u), p);

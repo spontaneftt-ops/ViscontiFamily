@@ -1,73 +1,66 @@
-/* --- GENEL AYARLAR VE FONTLAR --- */
+/* --- VISCONTI MAIN STYLESHEET (V.3.0) --- */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap');
 
 :root { 
-    --gold: #cfb53b; --red: #8a2020; --green: #1a4a25; 
-    --blue: #1e3a5f; --tech: #00ffcc; --purple: #9b59b6;
-    --text-color: #a0a0a0; --bg-admin: #050505; --card-bg: #101014;
+    --gold: #cfb53b; --dark-gold: #8a7620; 
+    --red: #c0392b; --green: #27ae60; --blue: #2980b9; 
+    --bg-dark: #050505; --card-bg: #101014; --text-main: #a0a0a0;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
 
-/* ADMIN PANELİ STİLLERİ */
-body.admin-page { background-color: var(--bg-admin); color: var(--text-color); }
-
-/* Login Ekranı */
-#login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.login-box { text-align: center; border: 1px solid var(--gold); padding: 40px; border-radius: 10px; background: rgba(20,20,20,0.9); box-shadow: 0 0 30px rgba(207, 181, 59, 0.2); }
-.login-input { display: block; width: 300px; padding: 12px; margin: 10px auto; background: #000; border: 1px solid #333; color: var(--gold); font-family: 'Share Tech Mono', monospace; text-align: center; }
-.btn-enter { padding: 10px 30px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; font-family: 'Cinzel', serif; margin-top: 10px; }
-
-/* Ana Arayüz */
-#main-interface { display: none; height: 100vh; flex-direction: column; }
-.top-bar { height: 60px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: rgba(0,0,0,0.8); }
-.user-info { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
-.btn-logout { background: transparent; border: 1px solid #444; color: #fff; padding: 5px 15px; cursor: pointer; }
-
-/* Sidebar */
-.workspace { display: flex; flex: 1; overflow: hidden; }
-.sidebar { width: 250px; background: #0a0a0a; border-right: 1px solid #333; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-.module-btn { background: transparent; border: 1px solid #333; color: #666; padding: 15px; text-align: left; cursor: pointer; transition: 0.3s; font-family: 'Cinzel', serif; display: flex; align-items: center; gap: 10px; }
-.module-btn:hover { border-color: var(--gold); color: #fff; }
-.module-btn.active { background: rgba(207, 181, 59, 0.1); border-color: var(--gold); color: var(--gold); }
-.restricted { display: none; } /* JS ile kaldırılır */
-
-/* İçerik Alanı */
-.content-area { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at center, #111 0%, #000 100%); position: relative; }
-.module-view { display: none; animation: fadeIn 0.5s; }
-.module-view.active { display: block; }
-h2 { font-family: 'Cinzel', serif; color: #fff; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px; display: inline-block; }
-
-/* Tablolar & Formlar */
-.log-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; }
-.log-table th, .log-table td { border: 1px solid #333; padding: 10px; text-align: left; }
-.log-table th { color: var(--gold); }
-.input-dark { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff; padding: 8px; width: 100%; margin-bottom: 10px; }
-.btn-action { padding: 8px 15px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; }
+/* --- ORTAK BİLEŞENLER --- */
+.hidden { display: none !important; }
+.btn-action { border: none; padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.8rem; transition: 0.3s; }
+.btn-action:hover { filter: brightness(1.2); }
 .btn-green { background: var(--green); color: #fff; }
 .btn-red { background: var(--red); color: #fff; }
 .btn-blue { background: var(--blue); color: #fff; }
+.btn-gold { background: var(--gold); color: #000; }
 
-/* BAŞVURU YÖNETİMİNE ÖZEL STİLLER */
-.app-card { background: #151515; border: 1px solid #333; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-.app-info h4 { color: var(--gold); margin-bottom: 5px; }
-.app-info span { font-size: 0.8rem; color: #777; margin-right: 10px; }
-.status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+.input-dark { background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; padding: 10px; border-radius: 4px; width: 100%; font-family: 'Inter', sans-serif; }
+.input-dark:focus { border-color: var(--gold); outline: none; }
+
+/* --- LOGIN EKRANI --- */
+#login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+.login-box { text-align: center; border: 1px solid var(--gold); padding: 50px; border-radius: 12px; background: rgba(16, 16, 20, 0.95); box-shadow: 0 0 50px rgba(207, 181, 59, 0.15); }
+
+/* --- ADMIN PANEL LAYOUT --- */
+#main-interface { display: flex; height: 100vh; flex-direction: column; }
+.top-bar { height: 60px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: #080808; }
+.workspace { display: flex; flex: 1; overflow: hidden; }
+
+.sidebar { width: 260px; background: #0a0a0a; border-right: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.module-btn { background: transparent; border: 1px solid transparent; color: #666; padding: 12px; text-align: left; cursor: pointer; font-family: 'Cinzel', serif; display: flex; align-items: center; gap: 10px; border-radius: 6px; transition: 0.3s; }
+.module-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.module-btn.active { background: rgba(207, 181, 59, 0.1); border-color: var(--gold); color: var(--gold); }
+
+.content-area { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+.module-view { display: none; animation: fadeIn 0.4s ease-out; }
+.module-view.active { display: block; }
+
+/* --- BAŞVURU KARTLARI --- */
+.app-card { background: #151515; border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 8px; position: relative; }
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+.app-status { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 .status-Beklemede { background: #f39c12; color: #000; }
-.status-Onaylandı { background: #27ae60; color: #fff; }
-.status-Reddedildi { background: #c0392b; color: #fff; }
-.story-box { display: none; background: #000; padding: 10px; border: 1px dashed #444; margin-top: 10px; font-size: 0.9rem; color: #ccc; white-space: pre-wrap; }
+.status-Onaylandı { background: var(--green); color: #fff; }
+.status-Reddedildi { background: var(--red); color: #fff; }
 
-/* MODAL (Ortak) */
-#perm-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; justify-content: center; align-items: center; }
-.perm-card { background: #1a1e24; border: 1px solid #2c3e50; width: 500px; border-radius: 8px; padding: 20px; font-family: 'Inter', sans-serif; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-.perm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
-.perm-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-.perm-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: #bdc3c7; }
-.perm-item input[type="checkbox"] { margin-top: 4px; accent-color: #3498db; transform: scale(1.2); }
-.btn-update-perms { width: 100%; background: #00b894; color: #fff; border: none; padding: 12px; margin-top: 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-.text-red { color: #e74c3c !important; }
-.text-purple { color: #9b59b6 !important; }
+.app-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.9rem; margin-bottom: 15px; }
+.story-content { background: #000; padding: 15px; border-radius: 6px; color: #ccc; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; display: none; margin-bottom: 15px; border: 1px dashed #333; }
+
+.action-bar { display: flex; gap: 10px; align-items: center; background: #0f0f0f; padding: 10px; border-radius: 6px; }
+.rank-select { background: #222; color: var(--gold); border: 1px solid #444; padding: 5px; border-radius: 4px; font-family: 'Inter', sans-serif; }
+
+/* --- INDEX PAGE STYLES --- */
+body.index-page .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+body.index-page section { background: var(--card-bg); border-radius: 12px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+body.index-page h2 { font-family: 'Cinzel', serif; color: var(--gold); text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; }
+
+/* --- MODAL --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; justify-content: center; align-items: center; }
+.modal-box { background: #1a1a1a; width: 500px; padding: 25px; border-radius: 8px; border: 1px solid #333; box-shadow: 0 0 40px rgba(0,0,0,0.8); }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

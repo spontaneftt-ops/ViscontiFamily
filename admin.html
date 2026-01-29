@@ -43,6 +43,8 @@
                 <div class="module-btn restricted role-blacklist" onclick="showModule('blacklist')"><i class="fas fa-gavel"></i> Blacklist (Overseer)</div>
                 <div class="module-btn restricted role-cyber" onclick="showModule('cyber')"><i class="fas fa-network-wired"></i> Siber Ağ (Oracle)</div>
                 <div class="module-btn restricted role-clean" onclick="showModule('cleanup')"><i class="fas fa-biohazard"></i> Temizlik (Cleaner)</div>
+                
+                <div class="module-btn restricted role-discordban" onclick="showModule('discordban')"><i class="fab fa-discord"></i> Discord İnfaz (Baron)</div>
             </div>
 
             <div class="content-area">
@@ -135,6 +137,26 @@
                     <div id="list-cleanup" style="margin-top:20px;"></div>
                 </div>
 
+                <div id="mod-discordban" class="module-view">
+                    <h2 style="color: #5865F2; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                        <i class="fab fa-discord"></i> Discord İnfaz Listesi
+                    </h2>
+                    <p style="color:#666; font-size:0.8rem; margin-bottom:15px;">
+                        Buraya eklenen kişiler Discord sunucusundan yasaklanmalı. <br>
+                        <span style="color:var(--red);">UYARI: Bu listeden kaydı sadece BARON silebilir.</span>
+                    </p>
+
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                        <input type="text" id="dban-id" class="input-dark" placeholder="Discord ID (Örn: 123456789)">
+                        <input type="text" id="dban-reason" class="input-dark" placeholder="İnfaz Sebebi">
+                        <button class="btn-action btn-red" onclick="addDiscordBan()">LİSTEYE AL</button>
+                    </div>
+                    
+                    <div id="list-discordban" style="background:rgba(0,0,0,0.2); border:1px solid #333; padding:10px; min-height:200px; border-radius:5px;">
+                        Yükleniyor...
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -188,14 +210,14 @@
         let currentUser = null;
         const RANK_LIST = ['THE SHROUD', 'THE DIAMOND', 'THE PRINCESS', 'THE ARCHITECT', 'BLOODLINE', 'OVERSEER', 'GRAVEDIGGER', 'WRAITH', 'ORACLE', 'HARBINGER', 'CADAVER', 'CLEANER', 'VISCONTI Aile Üyesi'];
         
-        // STATIC PERMISSIONS
+        // STATIC PERMISSIONS (YENİ EKLENEN 'discordban' YETKİSİ DAHİL)
         const PERMISSIONS = {
             'THE SHROUD': ['all'], 
-            'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy'],
-            'THE PRINCESS': ['apps', 'diplo', 'perms'],
+            'THE DIAMOND': ['finance', 'diplo', 'apps', 'strategy', 'discordban'],
+            'THE PRINCESS': ['apps', 'diplo', 'perms', 'discordban'],
             'THE ARCHITECT': ['strategy', 'finance'],
             'BLOODLINE': ['diplo'],
-            'OVERSEER': ['blacklist', 'intel', 'apps'],
+            'OVERSEER': ['blacklist', 'intel', 'apps', 'discordban'],
             'GRAVEDIGGER': ['hitlist', 'clean'],
             'WRAITH': ['intel'],
             'ORACLE': ['cyber', 'intel'],
@@ -330,7 +352,7 @@
                         document.getElementById('app-list').innerHTML = htmlApps || 'Bekleyen yok.';
                         document.getElementById('app-count').innerText = pendingCount;
                     }
-                    if(canSee('perms')) { // Genellikle apps yetkisi olan perms de görür ama ayırabilirsin
+                    if(canSee('perms')) { 
                         document.getElementById('personnel-list-container').innerHTML = htmlPersonnel || 'Personel yok.';
                     }
                 });
@@ -343,6 +365,9 @@
             if(canSee('diplo')) listenSimple('vom_diplo', 'list-diplo');
             if(canSee('hitlist')) listenSimple('vom_hitlist', 'list-hitlist');
             if(canSee('blacklist')) listenSimple('vom_blacklist', 'list-blacklist');
+            
+            // YENİ EKLENEN LİSTENER
+            if(canSee('discordban')) listenDiscordBan();
         }
 
         function listenSimple(col, elId) {
@@ -358,6 +383,49 @@
             });
         }
 
+        // --- YENİ EKLENEN DISCORD BAN FONKSİYONLARI ---
+        function listenDiscordBan() {
+            onSnapshot(query(collection(db, "vom_discord_ban"), orderBy("date", "desc")), (snap) => {
+                let h = '';
+                snap.forEach(d => {
+                    const x = d.data();
+                    // Silme butonu herkese görünür ama sadece Baron'da çalışır.
+                    h += `<div class="list-item" style="border-left: 3px solid #5865F2;">
+                            <div class="list-content">
+                                <span class="list-user" style="color:#5865F2;">${x.user}:</span> 
+                                <span style="color:#fff;">${x.info}</span>
+                            </div>
+                            <button class="btn-delete" style="border-color:#5865F2; color:#5865F2;" onclick="deleteDiscordBan('${d.id}')">
+                                <i class="fas fa-skull"></i> KALDIR
+                            </button>
+                          </div>`;
+                });
+                document.getElementById('list-discordban').innerHTML = h || '<span style="color:#444;">Temiz.</span>';
+            });
+        }
+
+        window.addDiscordBan = async () => {
+            const id = document.getElementById('dban-id').value;
+            const reason = document.getElementById('dban-reason').value;
+            if(!id || !reason) return alert("ID ve Sebep girilmeli.");
+            await addDoc(collection(db, "vom_discord_ban"), { info: `ID: ${id} | SEBEP: ${reason}`, user: currentUser, date: serverTimestamp() });
+            document.getElementById('dban-id').value = "";
+            document.getElementById('dban-reason').value = "";
+        };
+
+        window.deleteDiscordBan = async (docId) => {
+            // SADECE BARON (Kadir Baba) SİLEBİLİR
+            if (currentUser !== "Kadir Baba") {
+                alert("⛔ BU LİSTEDEN SİLME İŞLEMİNİ SADECE BARON YAPABİLİR!");
+                return;
+            }
+            if(confirm("Bu kişi Discord infaz listesinden kaldırılsın mı?")) {
+                await deleteDoc(doc(db, "vom_discord_ban", docId));
+                alert("Kişi listeden silindi.");
+            }
+        };
+
+        // --- DİĞER MODÜL FONKSİYONLARI ---
         window.showModule = (id) => {
             document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.module-btn').forEach(el => el.classList.remove('active'));
